@@ -1,0 +1,73 @@
+{
+  "apiVersion": "v1",
+  "kind": "Event",
+  "metadata": {
+    "resourceVersion": "fixture-rv-1"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-service-b.18a1.1",
+        "namespace": "fixture-service-b-integration",
+        "uid": "fixture-event-fixture-service-b.18a1.1",
+        "creationTimestamp": "2026-10-01T10:48:30Z",
+        "resourceVersion": "fixture-rv-600"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "fixture-service-b-integration",
+        "name": "fixture-service-b-5f6d8c9b7d-q7w3e",
+        "uid": "fixture-service-b-pod-001",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{fixture-service-b-5f6d8c9b7d-q7w3e}"
+      },
+      "reason": "Unhealthy",
+      "message": "Liveness probe failed: Get \"http://192.0.2.57:8080/health\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-10-01T10:48:30Z",
+      "lastTimestamp": "2026-10-01T10:49:30Z",
+      "count": 3,
+      "eventTime": null,
+      "reportingComponent": "",
+      "reportingInstance": ""
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-service-b.18a1.2",
+        "namespace": "fixture-service-b-integration",
+        "uid": "fixture-event-fixture-service-b.18a1.2",
+        "creationTimestamp": "2026-10-01T10:49:50Z",
+        "resourceVersion": "fixture-rv-600"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "fixture-service-b-integration",
+        "name": "fixture-service-b-5f6d8c9b7d-q7w3e",
+        "uid": "fixture-service-b-pod-001",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{fixture-service-b-5f6d8c9b7d-q7w3e}"
+      },
+      "reason": "Killing",
+      "message": "Container service-b failed liveness probe, will be restarted",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-10-01T10:49:50Z",
+      "lastTimestamp": "2026-10-01T10:49:50Z",
+      "count": 1,
+      "eventTime": null,
+      "reportingComponent": "",
+      "reportingInstance": ""
+    }
+  ]
+}

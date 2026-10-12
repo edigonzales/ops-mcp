@@ -1,0 +1,29 @@
+{
+  "id": "t03-wrong-probe-path",
+  "title": "Falscher Probe-Endpunkt",
+  "expectation": "Die Anwendung startet erfolgreich. Die Probe fragt einen synthetisch belegten falschen Pfad ab und erhaelt 404. Der tatsaechlich dokumentierte Endpoint im Startlog unterscheidet sich davon. Mehr Zeit waere keine belegte Loesung.",
+  "synthetic": true,
+  "tags": [
+    "t03",
+    "probe-path",
+    "http-404"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

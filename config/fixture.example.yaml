@@ -1,0 +1,155 @@
+# Synthetische Fixturekonfiguration des AGI Ops-Agenten (Modus: fixture).
+#
+# Diese Konfiguration ist sofort lauffaehig und verwendet ausschliesslich synthetische
+# Daten aus fixtures/. Sie enthaelt KEINE realen Systemadressen, KEINE Zugangsdaten und
+# KEINE Benutzeridentitaeten. Namespaces, Jobpfade, Workloads und Dateipfade sind frei
+# erfunden und ausdruecklich als synthetisch markiert.
+#
+# WICHTIG: Relative Pfade werden relativ zum Verzeichnis DIESER Datei aufgeloest.
+# Der Platzhalter ${OPS_AGENT_HOME} zeigt auf das Repositorywurzelverzeichnis; der Launcher
+# ./bin/ops-agent setzt ihn automatisch. Bei einem direkten Java-Aufruf selbst setzen:
+#   export OPS_AGENT_HOME=/pfad/zum/ops-mcp
+# Andere Variablen als ~, $HOME und gesetzte ${NAME} sind nicht zulaessig.
+#
+# Beispiel:
+#   ./gradlew installDist
+#   ./bin/ops-agent --config config/fixture.example.yaml doctor
+#   ./bin/ops-agent --config config/fixture.example.yaml applications
+#   ./bin/ops-agent --config config/fixture.example.yaml collect \
+#       --application modelfinder --environment integration --build 42
+
+schemaVersion: 1
+mode: fixture
+
+storage:
+  # Lokaler Ausgabebereich fuer Snapshots und Berichte. Wird mit 0700 angelegt.
+  root: "${OPS_AGENT_HOME}/build/fixture-state"
+
+security:
+  allowPersonalCredentials: false
+  modelDataPolicy: internal-approved-only
+  identityMode: restricted
+
+limits:
+  collectTimeoutSeconds: 90
+  requestTimeoutSeconds: 15
+  connectTimeoutSeconds: 5
+  maxParallelRequests: 3
+  maxRequests: 60
+  maxPods: 8
+  maxEvents: 500
+  maxGitFiles: 12
+  maxBuildLogBytes: 8388608
+  maxContainerLogBytes: 1048576
+  maxTotalInputBytes: 33554432
+  maxEvidenceResponseBytes: 32768
+  maxReportDraftBytes: 262144
+
+clusters:
+  # Rein synthetischer Cluster. Die Adresse ist absichtlich nicht aufloesbar.
+  fixture-cluster:
+    server: "https://fixture.invalid:6443"
+    ocExecutable: "/bin/false"
+    kubeconfig: "/dev/null"
+    context: "fixture-context"
+    identityMode: restricted
+    directHosts:
+      - fixture.invalid
+    allowedNamespaces:
+      - fixture-integration
+      - fixture-service-b-integration
+
+jenkins:
+  # Rein synthetische Jenkins-Instanz. Kein Credential ist hinterlegt; im Fixturebetrieb
+  # wird kein Netzwerkzugriff ausgefuehrt.
+  apps-deploy:
+    baseUrl: "https://jenkins.fixture.invalid"
+    username: fixture-reader
+    token:
+      environmentVar: OPS_AGENT_FIXTURE_TOKEN
+    tls:
+      additionalCaFile: null
+    proxy:
+      mode: direct
+    allowedJobPaths:
+      - ["fixture-folder", "modelfinder"]
+      - ["fixture-folder", "service-b"]
+      - ["fixture-folder", "legacy-application"]
+    allowedParameterNames:
+      - TARGET_NAMESPACE
+      - IMAGE_TAG
+      - CONFIG_REVISION
+
+repositories:
+  deployment-config:
+    repositoryId: sogis/openshift-templates
+    localPath: "${OPS_AGENT_HOME}/fixtures"
+    allowedFiles:
+      - t01-liveness-startup/repo/templates/modelfinder.yaml
+      - t01-liveness-startup/repo/env/integration.env
+      - t10-second-application/repo/templates/service-b.yaml
+      - t10-second-application/repo/env/service-b-integration.env
+
+applications:
+  modelfinder:
+    displayName: Modelfinder (synthetisch)
+    environments:
+      integration:
+        cluster: fixture-cluster
+        namespace: fixture-integration
+        workload:
+          kind: Deployment
+          name: fixture-modelfinder
+          containerNames:
+            - modelfinder
+        deployment:
+          jenkins: apps-deploy
+          jobPath: ["fixture-folder", "modelfinder"]
+        configuration:
+          repository: deployment-config
+          templateFiles:
+            - t01-liveness-startup/repo/templates/modelfinder.yaml
+          parameterFiles:
+            - t01-liveness-startup/repo/env/integration.env
+          allowedParameterNames:
+            - INITIAL_DELAY_SECONDS
+            - FAILURE_THRESHOLD
+            - PROBE_PATH
+            # IMAGE_TAG ist noetig, damit der Image-Vergleich zwischen Jenkins-Lauf und
+            # Workload ueberhaupt moeglich ist (sonst bleibt der Link "probable").
+            - IMAGE_TAG
+          revision:
+            source: jenkins-scm
+            repositoryId: sogis/openshift-templates
+
+  fixture-service-b:
+    displayName: Fixture Service B (synthetisch)
+    environments:
+      integration:
+        cluster: fixture-cluster
+        namespace: fixture-service-b-integration
+        workload:
+          kind: Deployment
+          name: fixture-service-b
+          containerNames:
+            - service-b
+        deployment:
+          jenkins: apps-deploy
+          jobPath: ["fixture-folder", "service-b"]
+        configuration:
+          repository: deployment-config
+          templateFiles:
+            - t10-second-application/repo/templates/service-b.yaml
+          parameterFiles:
+            - t10-second-application/repo/env/service-b-integration.env
+          allowedParameterNames:
+            - INITIAL_DELAY_SECONDS
+          revision:
+            source: jenkins-scm
+            repositoryId: sogis/openshift-templates
+
+fixture:
+  root: "${OPS_AGENT_HOME}/fixtures"
+  scenario: t01-liveness-startup
+  clock: fixed
+  fixedNow: "2026-10-01T10:10:00Z"

@@ -1,0 +1,32 @@
+{
+  "id": "t12c-invalid-json",
+  "title": "Ungueltiges JSON in einer K8s-Rohantwort",
+  "expectation": "Die Eventdatei enthaelt ungueltiges JSON. Der Fixtureadapter meldet SOURCE_PARSE_ERROR und behaelt die uebrigen, verwertbaren Teilbelege (Workload, Revision, Pod, Log). Es gibt keinen stillen Fallback auf eine leere Liste.",
+  "synthetic": true,
+  "tags": [
+    "t12",
+    "parse-error",
+    "partial-evidence"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedErrorCode": "SOURCE_PARSE_ERROR",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": [
+    "k8s/events-core.json"
+  ]
+}

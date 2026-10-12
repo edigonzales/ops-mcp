@@ -1,0 +1,135 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "resourceVersion": "fixture-rv-1"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "fixture-service-b-5f6d8c9b7d-q7w3e",
+        "namespace": "fixture-service-b-integration",
+        "uid": "fixture-service-b-pod-001",
+        "creationTimestamp": "2026-10-01T09:58:20Z",
+        "resourceVersion": "fixture-rv-500",
+        "labels": {
+          "app": "fixture-service-b-5f6d8c9b7d-q7w3e"
+        },
+        "annotations": {
+          "fixture.synthetic/note": "synthetische Fixture, keine Betriebsdaten"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "fixture-service-b-5f6d8c9b7d",
+            "uid": "fixture-service-b-rs-001",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "nodeName": "fixture-node-1",
+        "restartPolicy": "Always",
+        "serviceAccountName": "fixture-sa",
+        "containers": [
+          {
+            "name": "service-b",
+            "image": "registry.fixture.invalid/fixture/service-b:2026.10.1",
+            "ports": [
+              {
+                "name": "http",
+                "containerPort": 8080
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 10,
+              "timeoutSeconds": 1,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 5,
+              "periodSeconds": 10,
+              "timeoutSeconds": 1,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            }
+          }
+        ],
+        "initContainers": []
+      },
+      "status": {
+        "phase": "Running",
+        "hostIP": "192.0.2.10",
+        "podIP": "192.0.2.55",
+        "startTime": "2026-10-01T10:48:20Z",
+        "conditions": [
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastTransitionTime": "2026-10-01T09:58:20Z"
+          },
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastTransitionTime": "2026-10-01T09:58:22Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "False",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [service-b]",
+            "lastTransitionTime": "2026-10-01T09:59:52Z"
+          },
+          {
+            "type": "Ready",
+            "status": "False",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [service-b]",
+            "lastTransitionTime": "2026-10-01T09:59:52Z"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "service-b",
+            "image": "registry.fixture.invalid/fixture/service-b:2026.10.1",
+            "imageID": "registry.fixture.invalid/fixture/service-b:2026.10.1@sha256:8a3829c7b6f79a216413cdcc5e5fb213fa2e31d5c8f6e2c3fc20f4a62f2e1e42",
+            "ready": false,
+            "restartCount": 1,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-01T10:50:05Z"
+              }
+            },
+            "lastState": {
+              "terminated": {
+                "reason": "Error",
+                "message": "Container wurde nach fehlgeschlagener Liveness-Pruefung beendet.",
+                "exitCode": 137,
+                "signal": 9,
+                "startedAt": "2026-10-01T10:48:20Z",
+                "finishedAt": "2026-10-01T10:49:50Z"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

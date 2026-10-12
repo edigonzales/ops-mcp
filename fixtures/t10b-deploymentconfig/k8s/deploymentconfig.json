@@ -1,0 +1,105 @@
+{
+  "apiVersion": "apps.openshift.io/v1",
+  "kind": "DeploymentConfig",
+  "metadata": {
+    "name": "fixture-legacy-application",
+    "namespace": "fixture-service-b-integration",
+    "uid": "fixture-dc-legacy-application-001",
+    "generation": 12,
+    "creationTimestamp": "2026-09-01T07:30:00Z",
+    "resourceVersion": "fixture-rv-200",
+    "labels": {
+      "app": "fixture-legacy-application",
+      "deploymentconfig": "fixture-legacy-application"
+    },
+    "annotations": {
+      "fixture.synthetic/note": "synthetische Fixture, keine Betriebsdaten"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "app": "fixture-legacy-application",
+      "deploymentconfig": "fixture-legacy-application"
+    },
+    "strategy": {
+      "type": "Rolling"
+    },
+    "triggers": [
+      {
+        "type": "ImageChange",
+        "imageChangeParams": {
+          "automatic": true,
+          "containerNames": [
+            "legacy-application"
+          ],
+          "from": {
+            "kind": "ImageStreamTag",
+            "name": "fixture-legacy-application:latest"
+          }
+        }
+      }
+    ],
+    "template": {
+      "metadata": {
+        "creationTimestamp": "2026-10-01T09:40:00Z",
+        "labels": {
+          "app": "fixture-legacy-application",
+          "deploymentconfig": "fixture-legacy-application"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "legacy-application",
+            "image": "registry.fixture.invalid/fixture/legacy-application:2026.10.1",
+            "ports": [
+              {
+                "name": "http",
+                "containerPort": 8080
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 10,
+              "timeoutSeconds": 1,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            }
+          }
+        ],
+        "terminationGracePeriodSeconds": 30
+      }
+    }
+  },
+  "status": {
+    "latestVersion": 3,
+    "observedGeneration": 12,
+    "replicas": 1,
+    "updatedReplicas": 1,
+    "readyReplicas": 0,
+    "availableReplicas": 0,
+    "unavailableReplicas": 1,
+    "conditions": [
+      {
+        "type": "Available",
+        "status": "False",
+        "reason": "MinimumReplicasUnavailable",
+        "message": "Deployment config does not have minimum availability.",
+        "lastTransitionTime": "2026-10-01T11:46:10Z"
+      },
+      {
+        "type": "Progressing",
+        "status": "False",
+        "reason": "ProgressDeadlineExceeded",
+        "message": "ReplicationController \"fixture-legacy-application-3\" has timed out progressing.",
+        "lastTransitionTime": "2026-10-01T11:56:00Z"
+      }
+    ]
+  }
+}

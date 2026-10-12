@@ -1,0 +1,118 @@
+# Beispiel einer LIVE-Konfiguration des AGI Ops-Agenten.
+#
+# Diese Datei ist ABSICHTLICH NICHT EINSATZBEREIT. Die null-Werte markieren die Angaben,
+# die der Betreiber bestaetigen muss. Es sind keine Zugangsdaten enthalten und es duerfen
+# keine hier eingetragen werden.
+#
+# Nicht einchecken: die ausgefuellte Version als config/live.local.yaml ablegen
+# (siehe .gitignore).
+#
+# Erste Schritte auf dem Firmen-Laptop in WSL2:
+#   1. Lokale Kopie anlegen:            cp config/live.example.yaml config/live.local.yaml
+#   2. Credentials lokal bereitstellen: ${HOME}/.config/ops-agent/credentials/jenkins-apps.token
+#      (Datei mit 0600, Inhalt: nur der API-Token)
+#   3. Offene Angaben vervollstaendigen (siehe docs/anwenderhandbuch.md, Abschnitt WSL-Live)
+#   4. ./bin/ops-agent --config config/live.local.yaml doctor
+#   5. Erst danach collect ausfuehren. Keine automatische Zertifikats- oder Proxyreparatur.
+
+schemaVersion: 1
+mode: live
+
+storage:
+  root: "${HOME}/.local/state/ops-agent"
+
+security:
+  # Ein persoenlicher Prototypzugang ist nur mit dieser ausdruecklichen Freigabe zulaessig.
+  # Die Anwendung leitet daraus KEINE RBAC-Garantie ab; doctor meldet dann
+  # PERSONAL_CREDENTIALS_UNVERIFIED_PRIVILEGES.
+  allowPersonalCredentials: false
+  # Live-Betriebsdaten duerfen nur an einen dafuer freigegebenen Modellanbieter gehen.
+  modelDataPolicy: internal-approved-only
+
+limits:
+  collectTimeoutSeconds: 90
+  requestTimeoutSeconds: 15
+  connectTimeoutSeconds: 5
+  maxParallelRequests: 3
+  maxRequests: 60
+  maxPods: 8
+  maxEvents: 500
+  maxGitFiles: 12
+  maxBuildLogBytes: 8388608
+  maxContainerLogBytes: 1048576
+  maxTotalInputBytes: 33554432
+  maxEvidenceResponseBytes: 32768
+  maxReportDraftBytes: 262144
+
+clusters:
+  ocp:
+    server: "https://api.ocp.so.ch:6443"
+    # Pfad des oc-Programms in WSL bestaetigen (z. B. /usr/local/bin/oc oder /usr/bin/oc).
+    ocExecutable: null
+    # Lokale, freigegebene kubeconfig mit tokenbasierter statischer Konfiguration.
+    # exec-Credential-Plugins, insecure-skip-tls-verify und fremde proxy-url werden abgelehnt.
+    kubeconfig: "${HOME}/.config/ops-agent/credentials/ocp.kubeconfig"
+    # Explizit konfigurierter Context. null loest CONFIG_INCOMPLETE aus; es gibt keinen Default.
+    context: null
+    identityMode: personal-prototype
+    directHosts:
+      - api.ocp.so.ch
+    # Obere Berechtigungsgrenze. Anwendungseintraege duerfen sie nur einschraenken.
+    allowedNamespaces: []
+
+jenkins:
+  apps-deploy:
+    baseUrl: "https://jenkins-agi-apps-production.apps.ocp.so.ch"
+    # Benutzername der Leseidentitaet bestaetigen.
+    username: null
+    token:
+      # Alternative zur Datei: environmentVar: OPS_AGENT_JENKINS_TOKEN
+      file: "${HOME}/.config/ops-agent/credentials/jenkins-apps.token"
+    tls:
+      # Zusaetzliche lokale CA des Jenkins-Endpunkts (kann ein anderer Aussteller als die
+      # OpenShift-API sein). Keine CA global installieren.
+      additionalCaFile: null
+    proxy:
+      # direct | explicit (mit host/port; Credentials nur ueber Secret-Referenzen)
+      mode: direct
+    allowedJobPaths: []
+    allowedParameterNames: []
+
+repositories:
+  deployment-config:
+    repositoryId: sogis/openshift-templates
+    # Vom Menschen vorbereiteter lokaler Checkout. Kein Clone, Fetch oder Pull durch den Agenten.
+    localPath: null
+    allowedFiles: []
+
+applications:
+  modelfinder:
+    displayName: Modelfinder
+    environments:
+      integration:
+        cluster: ocp
+        # Zielnamespace des konkreten Vorfalls bestaetigen. Kein Defaultnamespace.
+        namespace: null
+        workload:
+          # Deployment oder DeploymentConfig.
+          kind: null
+          name: null
+          # Explizite Containerauswahl. Eine leere Auswahl erlaubt Containermetadaten,
+          # aber nicht automatisch beliebige Logs.
+          containerNames: []
+        deployment:
+          jenkins: apps-deploy
+          # Folder-Jobpfad als Liste von Segmenten, z. B. ["datenportal", "modelfinder"].
+          # KEIN Sodata-Beispiel und keine /job/-URL-Teile uebernehmen.
+          jobPath: null
+        configuration:
+          repository: deployment-config
+          templateFiles: []
+          parameterFiles: []
+          allowedParameterNames: []
+          revision:
+            # jenkins-scm | operator-supplied
+            # Bei operator-supplied sind commit und forBuild erforderlich; forBuild muss
+            # exakt der untersuchten Buildnummer entsprechen.
+            source: jenkins-scm
+            repositoryId: sogis/openshift-templates

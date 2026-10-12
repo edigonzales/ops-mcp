@@ -1,0 +1,33 @@
+{
+  "id": "t08-jenkins-before-deploy",
+  "title": "Jenkins scheitert vor der Anwendung des Deployments",
+  "expectation": "Fehler beim Checkout der Konfiguration; kein neuer Rollout. Im Cluster laeuft eine alte, gesunde Version. Die Probes dieser unbeteiligten alten Version duerfen nicht als Ursache behauptet werden.",
+  "synthetic": true,
+  "tags": [
+    "t08",
+    "jenkins-pre-deploy",
+    "old-version-healthy"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedRawFiles": [
+    "jenkins/build-42-console.txt",
+    "jenkins/build-42-metadata.json",
+    "jenkins/job.json",
+    "k8s/deployment.json",
+    "k8s/events-absent.marker",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/pods.json",
+    "k8s/replicasets.json"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "expectedGaps": [
+    "kein neuer Rollout; die Events betreffen ausschliesslich die alte Podinstanz"
+  ]
+}

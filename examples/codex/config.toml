@@ -1,0 +1,57 @@
+# Codex-Diagnosekonfiguration fuer den AGI Ops-Agenten (V1).
+#
+# Ablage: ~/.codex/config.toml  oder  .codex/config.toml (nur in vertrauenswuerdigen Projekten)
+#
+# WICHTIG: Die Platzhalter /ABSOLUTER/PFAD/ZUM/ops-mcp durch den tatsaechlichen absoluten
+# Pfad des Checkouts ersetzen. In WSL ist das zum Beispiel /home/<user>/ops-mcp.
+#
+# Diese Datei ist die DIAGNOSEKONFIGURATION. Fuer Entwicklungsarbeit am Repository gilt
+# AGENTS.md, nicht dieses Profil.
+
+[mcp_servers.ops-agent]
+# Startet den Launcher des gebauten Programms. Einmalig vorher: ./gradlew installDist
+command = "/ABSOLUTER/PFAD/ZUM/ops-mcp/bin/ops-agent"
+
+args = [
+  "--config",
+  "/ABSOLUTER/PFAD/ZUM/ops-mcp/config/fixture.example.yaml",
+  "serve",
+]
+
+# Arbeitsverzeichnis des MCP-Prozesses. Relative Pfade in der Konfiguration werden relativ
+# zur Konfigurationsdatei aufgeloest; cwd ist trotzdem explizit gesetzt.
+cwd = "/ABSOLUTER/PFAD/ZUM/ops-mcp"
+
+# Der Client-Timeout muss ueber dem Collect-Timeout liegen, mit Reserve:
+# 90 s Collect-Budget -> 120 s Werkzeug-Timeout.
+tool_timeout_sec = 120
+startup_timeout_sec = 20
+
+# Nur die sechs definierten Betriebswerkzeuge. Keine weiteren MCP-Server in diesem Profil.
+enabled_tools = [
+  "ops_list_applications",
+  "ops_resolve_target",
+  "ops_collect_snapshot",
+  "ops_get_snapshot",
+  "ops_read_evidence",
+  "ops_store_report",
+]
+
+# Kein automatisches Ausfuehren: auch die lesenden Werkzeuge werden bestaetigt.
+# Fuer einen unbeaufsichtigten Fixturelauf kann auf "auto" umgestellt werden.
+default_tools_approval_mode = "prompt"
+
+# Der Bericht wird ausschliesslich vom MCP-Server geschrieben. Ein Schreibwerkzeug im Client
+# ist fuer die Diagnose nicht noetig.
+[mcp_servers.ops-agent.tools.ops_store_report]
+approval_mode = "approve"
+
+# Umgebungsvariablen: KEINE Zugangsdaten in dieser Datei.
+# Der Fixturebetrieb benoetigt keine Credentials. Fuer den spaeteren Livebetrieb liest der
+# Server das Jenkins-Token aus einer lokalen Datei oder aus einer hier durchgereichten
+# Variablen, zum Beispiel:
+#
+# env_vars = ["OPS_AGENT_JENKINS_TOKEN"]
+#
+# Der Tokenwert selbst gehoert nie in config.toml, nie in ein CLI-Argument und nie in einen
+# Prompt.

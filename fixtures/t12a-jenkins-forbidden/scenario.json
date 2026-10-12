@@ -1,0 +1,32 @@
+{
+  "id": "t12a-jenkins-forbidden",
+  "title": "Jenkins-Antwort ist 403 Forbidden",
+  "expectation": "Der Jenkins-Zugriff auf Buildmetadaten und Console-Log wird mit HTTP 403 beantwortet. Der Fixtureadapter liefert einen erklaerten Fehler FORBIDDEN mit SourceStatus UNREACHABLE und KEINEN BuildSnapshot; es gibt keinen stillen Fixture-Fallback. Die Clusterbelege bleiben trotzdem erhalten.",
+  "synthetic": true,
+  "tags": [
+    "t12",
+    "transport-error",
+    "jenkins-403"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedErrorCode": "FORBIDDEN",
+  "expectedSourceStatus": "UNREACHABLE",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "jenkins/error.json",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

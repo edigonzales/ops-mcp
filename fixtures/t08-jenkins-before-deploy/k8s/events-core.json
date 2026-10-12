@@ -1,0 +1,38 @@
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "metadata": {
+    "resourceVersion": "fixture-rv-601"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-modelfinder.17e8.1",
+        "namespace": "fixture-integration",
+        "uid": "fixture-event-fixture-modelfinder.17e8.1",
+        "creationTimestamp": "2026-09-20T08:02:10Z",
+        "resourceVersion": "fixture-rv-601"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder-7d9c4b6f5c-p4x2q",
+        "uid": "fixture-pod-001",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{modelfinder}"
+      },
+      "reason": "FailedMount",
+      "message": "MountVolume.SetUp failed for volume \"fixture-config\": configmap \"fixture-modelfinder-config\" not found",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-09-20T08:02:10Z",
+      "lastTimestamp": "2026-09-20T08:02:10Z",
+      "count": 1
+    }
+  ]
+}

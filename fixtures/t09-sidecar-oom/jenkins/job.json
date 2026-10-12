@@ -1,0 +1,26 @@
+{
+  "_class": "org.jenkinsci.plugins.workflow.job.WorkflowJob",
+  "name": "modelfinder",
+  "displayName": "modelfinder",
+  "fullName": "fixture-folder/modelfinder",
+  "url": "https://jenkins.fixture.invalid/job/fixture-folder/job/modelfinder/",
+  "buildable": true,
+  "inQueue": false,
+  "color": "red",
+  "description": "synthetischer Fixturejob",
+  "nextBuildNumber": 43,
+  "builds": [
+    {
+      "number": 42
+    }
+  ],
+  "lastFailed": {
+    "number": 42
+  },
+  "lastSuccessful": {
+    "number": 41
+  },
+  "lastCompleted": {
+    "number": 42
+  }
+}

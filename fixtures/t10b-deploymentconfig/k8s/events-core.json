@@ -1,0 +1,73 @@
+{
+  "apiVersion": "v1",
+  "kind": "Event",
+  "metadata": {
+    "resourceVersion": "fixture-rv-1"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-legacy-application.19a1.1",
+        "namespace": "fixture-service-b-integration",
+        "uid": "fixture-event-fixture-legacy-application.19a1.1",
+        "creationTimestamp": "2026-10-01T11:46:30Z",
+        "resourceVersion": "fixture-rv-600"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "fixture-service-b-integration",
+        "name": "fixture-legacy-application-3-x8k2m",
+        "uid": "fixture-pod-101",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{fixture-legacy-application-3-x8k2m}"
+      },
+      "reason": "Unhealthy",
+      "message": "Liveness probe failed: Get \"http://192.0.2.61:8080/healthz\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-10-01T11:46:30Z",
+      "lastTimestamp": "2026-10-01T11:47:30Z",
+      "count": 3,
+      "eventTime": null,
+      "reportingComponent": "",
+      "reportingInstance": ""
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-legacy-application.19a1.2",
+        "namespace": "fixture-service-b-integration",
+        "uid": "fixture-event-fixture-legacy-application.19a1.2",
+        "creationTimestamp": "2026-10-01T11:47:50Z",
+        "resourceVersion": "fixture-rv-600"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "fixture-service-b-integration",
+        "name": "fixture-legacy-application-3-x8k2m",
+        "uid": "fixture-pod-101",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{fixture-legacy-application-3-x8k2m}"
+      },
+      "reason": "Killing",
+      "message": "Container legacy-application failed liveness probe, will be restarted",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-10-01T11:47:50Z",
+      "lastTimestamp": "2026-10-01T11:47:50Z",
+      "count": 1,
+      "eventTime": null,
+      "reportingComponent": "",
+      "reportingInstance": ""
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+# Synthetische Fixture-Konfiguration fuer die Schemaabnahme (SCHNITTSTELLEN.md Abschnitt 1).
+#
+# Nur schema-relevant: Diese Datei belegt den Aufbau von config-v1.schema.json. Sie ist
+# keine Betriebskonfiguration. Alle Kennungen, Namespaces, Jobpfade, Dateipfade und
+# Adressen sind erfunden (example.invalid) und enthalten keine Credentials.
+schemaVersion: 1
+mode: fixture
+
+storage:
+  root: "${HOME}/.local/state/ops-agent-fixture"
+
+security:
+  allowPersonalCredentials: false
+  modelDataPolicy: internal-approved-only
+  identityMode: restricted
+
+limits:
+  collectTimeoutSeconds: 90
+  requestTimeoutSeconds: 15
+  connectTimeoutSeconds: 5
+  maxParallelRequests: 3
+  maxRequests: 60
+  maxPods: 8
+  maxEvents: 500
+  maxGitFiles: 12
+  maxBuildLogBytes: 8388608
+  maxContainerLogBytes: 1048576
+  maxTotalInputBytes: 33554432
+  maxEvidenceResponseBytes: 32768
+  maxReportDraftBytes: 262144
+
+clusters:
+  ocp:
+    server: "https://ocp.fixture.example.invalid:6443"
+    ocExecutable: "/usr/local/bin/oc"
+    kubeconfig: "${HOME}/.config/ops-agent/credentials/fixture-ocp.kubeconfig"
+    context: "fixture-context"
+    identityMode: restricted
+    directHosts:
+      - ocp.fixture.example.invalid
+    allowedNamespaces:
+      - fixture-integration
+
+jenkins:
+  apps-deploy:
+    baseUrl: "https://jenkins.fixture.example.invalid"
+    username: null
+    token:
+      file: "${HOME}/.config/ops-agent/credentials/fixture-jenkins.token"
+    tls:
+      additionalCaFile: null
+    proxy:
+      mode: direct
+    allowedJobPaths:
+      - ["fixture-folder", "fixture-modelfinder"]
+    allowedParameterNames:
+      - FIXTURE_BUILD_NUMBER
+
+repositories:
+  deployment-config:
+    repositoryId: "fixture-org/fixture-templates"
+    localPath: "./fixtures/git/fixture-templates"
+    allowedFiles:
+      - "templates/modelfinder.yaml"
+      - "parameters/modelfinder.env"
+
+applications:
+  modelfinder:
+    displayName: "Modelfinder (Fixture)"
+    environments:
+      integration:
+        cluster: ocp
+        namespace: fixture-integration
+        workload:
+          kind: Deployment
+          name: fixture-modelfinder
+          containerNames:
+            - fixture-modelfinder
+          allWorkloadContainers: false
+        deployment:
+          jenkins: apps-deploy
+          jobPath: ["fixture-folder", "fixture-modelfinder"]
+        configuration:
+          repository: deployment-config
+          templateFiles:
+            - "templates/modelfinder.yaml"
+          parameterFiles:
+            - "parameters/modelfinder.env"
+          allowedParameterNames:
+            - FIXTURE_BUILD_NUMBER
+          revision:
+            source: operator-supplied
+            repositoryId: "fixture-org/fixture-templates"
+            commit: "0123456789abcdef0123456789abcdef01234567"
+            forBuild: 42
+
+fixture:
+  root: "./fixtures/scenarios"
+  scenario: t01-liveness-startup
+  clock: fixed
+  fixedNow: "2026-10-01T10:10:00Z"
+  # Namespacetes Erweiterungsfeld: erlaubt, weil der Loader Schluessel mit Praefix 'x-'
+  # auf jeder Ebene ignoriert.
+  x-fixture-note: "Synthetisch: keine Betriebsadressen, keine Credentials, keine echten Logdaten."

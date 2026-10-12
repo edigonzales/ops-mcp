@@ -1,0 +1,14 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+{
+  "apiVersion": "v1",
+  "kind": "EventList",
+  "metadata": { "resourceVersion": "fixture-rv-600" },
+  "items": [
+    { "apiVersion": "v1", "kind": "Event",
+      "metadata": { "name": "fixture-modelfinder.23c1.1", "namespace": "fixture-integration" },
+      "involvedObject": { "kind": "Pod", "name": "fixture-modelfinder-7d9c4b6f5c-p4x2q",
+                          "uid": "fixture-pod-001" },
+      "reason": "Killing",
+      "message": "Container modelfinder failed liveness probe, will be restarted",
+      "count": 1,

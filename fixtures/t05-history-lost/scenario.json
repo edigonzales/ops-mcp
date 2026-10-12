@@ -1,0 +1,35 @@
+{
+  "id": "t05-history-lost",
+  "title": "Alte Stoerung nicht mehr rekonstruierbar",
+  "expectation": "Jenkins-Fehler eines frueheren Laufs ist vorhanden; die aktuellen Pods sind gesund (Restartcount 0). Alte Pod-UIDs, Events und vorherige Logs fehlen vollstaendig; die Git-Zuordnung ist nur teilweise bekannt. Die historische Ursache ist nicht nachweisbar.",
+  "synthetic": true,
+  "tags": [
+    "t05",
+    "history-lost",
+    "insufficient-evidence"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "revisionCommit": "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/events-absent.marker"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "expectedGaps": [
+    "keine Events im Szenario (alter Pod geloescht)",
+    "keine vorherigen Logs (Restartcount 0)",
+    "Commit bbbb2222... ist lokal nicht vorhanden"
+  ]
+}

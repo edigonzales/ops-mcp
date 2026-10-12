@@ -1,0 +1,102 @@
+# ---------------------------------------------------------------------------
+# AGI Ops-Agent – Ignorierregeln
+#
+# Grundsaetze:
+#   1. Lokale Zugangsdaten und Live-Konfiguration werden NIEMALS eingecheckt.
+#   2. Lokale Laufzeitartefakte (Snapshots, Berichte, Logs) werden nicht
+#      eingecheckt; sie koennen Betriebsdaten enthalten.
+#   3. Das Fixture-Repository dient ausschliesslich synthetischen Daten.
+#   4. Der eingecheckte Gradle-Wrapper (gradlew, gradlew.bat,
+#      gradle/wrapper/gradle-wrapper.jar) gehoert ausdruecklich ins
+#      Repository und wird hier nicht ignoriert.
+# ---------------------------------------------------------------------------
+
+# --- Build-Artefakte -------------------------------------------------------
+/build/
+/.gradle/
+.gradle/
+out/
+target/
+*.class
+
+# Hinweis: Es gibt bewusst KEINE Regel fuer "*.jar". Der Gradle-Wrapper
+# (gradle/wrapper/gradle-wrapper.jar) ist Bestandteil des Repositories und
+# muss eingecheckt bleiben.
+
+# --- Lokale Laufzeitartefakte des Agenten ----------------------------------
+# Snapshots und Berichte koennen bereinigte, aber echte Betriebsdaten enthalten.
+/runtime/
+/state/
+/build/fixture-state/
+**/ops-agent-state/
+*.snapshot-local
+*.diagnosis-local.json
+
+# --- Zugangsdaten und lokale Live-Konfiguration ----------------------------
+config/live.local.yaml
+config/*.local.yaml
+config/*.credentials.yaml
+credentials/
+*.kubeconfig
+*.token
+*.pem
+*.key
+*.p12
+*.jks
+.env
+.env.*
+
+# --- Logs und Prozessabbruchdateien ---------------------------------------
+*.log
+hs_err_pid*.log
+replay_pid*.log
+java_pid*.hprof
+
+# --- macOS ----------------------------------------------------------------
+# Finder-Metadaten (entstehen in praktisch jedem Verzeichnis).
+.DS_Store
+.AppleDouble
+.LSOverride
+# AppleDouble-/Ressourcenstaerke-Dateien auf Nicht-HFS-Dateisystemen (z. B.
+# externe Platten, SMB-Freigaben, Wechselmedien).
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.apdisk
+.DocumentRevisions-V100
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+# Aus macOS-ZIP-Archiven extrahiert.
+__MACOSX/
+
+# --- Windows / WSL --------------------------------------------------------
+# Der Livebetrieb ist unter WSL2 vorgesehen.
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Linux ----------------------------------------------------------------
+*~
+.directory
+.Trash-*
+
+# --- IDE und Editor -------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+*.swp
+*.swo
+*.orig
+*.rej
+*.bak

@@ -1,0 +1,33 @@
+{
+  "id": "t06c-foreign-sha",
+  "title": "Fremder SHA: keine wahllose Zuordnung zum ersten SHA",
+  "expectation": "In den Jenkins-Daten kommt auch ein SHA eines anderen Repositories vor. Der fremde SHA darf nicht als Revision von sogis/openshift-templates verwendet werden; ohne Zuordnung bleibt die Revision unbekannt bzw. unverifiziert.",
+  "synthetic": true,
+  "tags": [
+    "t06",
+    "foreign-sha",
+    "no-guessing"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "foreignRepositoryCommit": "dddd4444dddd4444dddd4444dddd4444dddd4444",
+  "foreignRepository": "sogis/schema-jobs",
+  "headCommit": "cccc3333cccc3333cccc3333cccc3333cccc3333",
+  "expectedErrorCode": "REVISION_UNKNOWN",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

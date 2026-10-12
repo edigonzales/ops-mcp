@@ -1,0 +1,37 @@
+{
+  "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+  "number": 42,
+  "displayName": "42",
+  "building": false,
+  "result": "FAILURE",
+  "timestamp": 1789000000000,
+  "duration": 601000,
+  "estimatedDuration": 661000,
+  "url": "https://jenkins.fixture.invalid/job/fixture-folder/job/modelfinder/42/",
+  "id": "42",
+  "queueId": 4711,
+  "description": null,
+  "keepLog": false,
+  "actions": [
+    {
+      "_class": "hudson.model.ParametersAction",
+      "parameters": [
+        {
+          "_class": "hudson.model.StringParameterValue",
+          "name": "TARGET_NAMESPACE",
+          "value": "fixture-integration"
+        },
+        {
+          "_class": "hudson.model.StringParameterValue",
+          "name": "IMAGE_TAG",
+          "value": "2026.10.1"
+        }
+      ]
+    }
+  ],
+  "changeSet": {
+    "_class": "hudson.plugins.git.GitChangeSetList",
+    "kind": "git",
+    "items": []
+  }
+}

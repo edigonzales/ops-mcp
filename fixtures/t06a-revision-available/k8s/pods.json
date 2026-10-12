@@ -1,0 +1,123 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "resourceVersion": "fixture-rv-1"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "fixture-modelfinder-7d9c4b6f5c-p4x2q",
+        "namespace": "fixture-integration",
+        "uid": "fixture-pod-001",
+        "creationTimestamp": "2026-10-01T09:58:20Z",
+        "resourceVersion": "fixture-rv-500",
+        "labels": {
+          "app": "fixture-modelfinder-7d9c4b6f5c-p4x2q"
+        },
+        "annotations": {
+          "fixture.synthetic/note": "synthetische Fixture, keine Betriebsdaten"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "ReplicaSet",
+            "name": "fixture-modelfinder-7d9c4b6f5c",
+            "uid": "fixture-rs-001",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "nodeName": "fixture-node-1",
+        "restartPolicy": "Always",
+        "serviceAccountName": "fixture-sa",
+        "containers": [
+          {
+            "name": "modelfinder",
+            "image": "registry.fixture.invalid/fixture/modelfinder:2026.10.1",
+            "ports": [
+              {
+                "name": "http",
+                "containerPort": 8080
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 10,
+              "timeoutSeconds": 1,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            }
+          }
+        ],
+        "initContainers": []
+      },
+      "status": {
+        "phase": "Running",
+        "hostIP": "192.0.2.10",
+        "podIP": "192.0.2.55",
+        "startTime": "2026-10-01T09:58:20Z",
+        "conditions": [
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastTransitionTime": "2026-10-01T09:58:20Z"
+          },
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastTransitionTime": "2026-10-01T09:58:22Z"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "False",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [modelfinder]",
+            "lastTransitionTime": "2026-10-01T09:59:52Z"
+          },
+          {
+            "type": "Ready",
+            "status": "False",
+            "reason": "ContainersNotReady",
+            "message": "containers with unready status: [modelfinder]",
+            "lastTransitionTime": "2026-10-01T09:59:52Z"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "name": "modelfinder",
+            "image": "registry.fixture.invalid/fixture/modelfinder:2026.10.1",
+            "imageID": "registry.fixture.invalid/fixture/modelfinder:2026.10.1@sha256:06a89a4b52cb99447122c901ffba657d5cf181096f0e98a33f8ce7afa985a294",
+            "ready": false,
+            "restartCount": 1,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-01T10:00:05Z"
+              }
+            },
+            "lastState": {
+              "terminated": {
+                "reason": "Error",
+                "message": "Container wurde nach fehlgeschlagener Liveness-Pruefung beendet.",
+                "exitCode": 137,
+                "signal": 9,
+                "startedAt": "2026-10-01T09:58:20Z",
+                "finishedAt": "2026-10-01T09:59:50Z"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

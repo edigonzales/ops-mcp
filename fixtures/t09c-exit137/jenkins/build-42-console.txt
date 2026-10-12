@@ -1,0 +1,11 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+[Pipeline] { (Deploy)
+deployment.apps/fixture-modelfinder configured
+[Pipeline] { (Wait for rollout)
+oc rollout status deployment/fixture-modelfinder --timeout=600s
+Waiting for deployment "fixture-modelfinder" rollout to finish: 0 of 1 updated replicas are available...
+error: timed out waiting for the condition
+ERROR: Rollout nicht abgeschlossen; ein Container im Pod wurde beendet.
+Finished: FAILURE

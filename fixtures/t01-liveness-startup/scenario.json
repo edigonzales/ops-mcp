@@ -1,0 +1,52 @@
+{
+  "id": "t01-liveness-startup",
+  "title": "Liveness unterbricht die Startphase: positiver Kernfall",
+  "expectation": "Jenkins-Build 42 endet mit Rollout-Timeout; der Hauptcontainer wird nach wiederholten Liveness-Fehlern beendet und neu gestartet (Restartcount 1, lastState Terminated). Es ist KEINE Startup-Probe konfiguriert; die Liveness beginnt nach 10 s bei periodSeconds 10 und failureThreshold 3. Git-Commit A enthaelt genau diese Werte.",
+  "synthetic": true,
+  "tags": [
+    "t01",
+    "liveness",
+    "startup-phase",
+    "positive-core-case"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "git",
+  "expectedRawFiles": [
+    "jenkins/build-42-console.txt",
+    "jenkins/build-42-metadata.json",
+    "jenkins/job.json",
+    "k8s/deployment.json",
+    "k8s/events-core.json",
+    "k8s/events-events-k8s-io.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder--previous.log",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/pods.json",
+    "k8s/replicasets.json",
+    "repo-files/c0563524e661fe31844e23943c2e9bf1b4cda0e1/t01-liveness-startup/repo/env/integration.env",
+    "repo-files/c0563524e661fe31844e23943c2e9bf1b4cda0e1/t01-liveness-startup/repo/templates/modelfinder.yaml",
+    "repo/commits/commit-a/env/integration.env",
+    "repo/commits/commit-a/templates/modelfinder.yaml",
+    "repo/repo-setup.json"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "_testConfig": {
+    "application": "modelfinder",
+    "environment": "integration",
+    "templateFiles": [
+      "t01-liveness-startup/repo/templates/modelfinder.yaml"
+    ],
+    "parameterFiles": [
+      "t01-liveness-startup/repo/env/integration.env"
+    ]
+  },
+  "configuredFiles": [
+    "t01-liveness-startup/repo/env/integration.env",
+    "t01-liveness-startup/repo/templates/modelfinder.yaml"
+  ],
+  "revisionCommit": "c0563524e661fe31844e23943c2e9bf1b4cda0e1"
+}

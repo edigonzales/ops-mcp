@@ -1,0 +1,73 @@
+{
+  "apiVersion": "v1",
+  "kind": "Event",
+  "metadata": {
+    "resourceVersion": "fixture-rv-1"
+  },
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-modelfinder.20a1.1",
+        "namespace": "fixture-integration",
+        "uid": "fixture-event-fixture-modelfinder.20a1.1",
+        "creationTimestamp": "2026-09-20T08:03:00Z",
+        "resourceVersion": "fixture-rv-600"
+      },
+      "involvedObject": {
+        "kind": "Pod",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder-7d9c4b6f5c-p4x2q",
+        "uid": "fixture-pod-001",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{fixture-modelfinder-7d9c4b6f5c-p4x2q}"
+      },
+      "reason": "Unhealthy",
+      "message": "Readiness probe failed: HTTP probe failed with statuscode: 503",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-09-20T08:03:00Z",
+      "lastTimestamp": "2026-09-20T08:04:00Z",
+      "count": 2,
+      "eventTime": null,
+      "reportingComponent": "",
+      "reportingInstance": ""
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Event",
+      "metadata": {
+        "name": "fixture-modelfinder.20a1.2",
+        "namespace": "fixture-integration",
+        "uid": "fixture-event-fixture-modelfinder.20a1.2",
+        "creationTimestamp": "2026-10-01T09:55:00Z",
+        "resourceVersion": "fixture-rv-600"
+      },
+      "involvedObject": {
+        "kind": "Deployment",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder",
+        "uid": "fixture-deployment-modelfinder-001",
+        "apiVersion": "v1",
+        "fieldPath": "spec.containers{fixture-modelfinder}"
+      },
+      "reason": "ScalingReplicaSet",
+      "message": "Scaled up replica set fixture-modelfinder-7d9c4b6f5c to 1",
+      "type": "Warning",
+      "source": {
+        "component": "kubelet",
+        "host": "fixture-node-1"
+      },
+      "firstTimestamp": "2026-10-01T09:55:00Z",
+      "lastTimestamp": "2026-10-01T09:55:00Z",
+      "count": 1,
+      "eventTime": null,
+      "reportingComponent": "",
+      "reportingInstance": ""
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+  "number": 42,
+  "displayName": "42",
+  "building": false,
+  "result": "FAILURE",
+  "timestamp": 1789003600000,
+  "duration": 598000,
+  "estimatedDuration": 658000,
+  "url": "https://jenkins.fixture.invalid/job/fixture-folder/job/modelfinder/42/",
+  "id": "42",
+  "queueId": 4711,
+  "description": null,
+  "keepLog": false,
+  "actions": [
+    {
+      "_class": "hudson.model.ParametersAction",
+      "parameters": [
+        {
+          "_class": "hudson.model.StringParameterValue",
+          "name": "TARGET_NAMESPACE",
+          "value": "fixture-service-b-integration"
+        },
+        {
+          "_class": "hudson.model.StringParameterValue",
+          "name": "IMAGE_TAG",
+          "value": "2026.10.1"
+        }
+      ]
+    },
+    {
+      "_class": "hudson.plugins.git.util.BuildData",
+      "lastBuiltRevision": {
+        "SHA1": "69e1a6ec93b1edb318a226023fb980fa0caaca19",
+        "name": "refs/remotes/origin/main",
+        "branch": [
+          {
+            "SHA1": "69e1a6ec93b1edb318a226023fb980fa0caaca19",
+            "name": "refs/remotes/origin/main"
+          }
+        ]
+      },
+      "remoteUrls": [
+        "https://github.com/sogis/openshift-templates.git"
+      ],
+      "buildsByBranchName": {
+        "refs/remotes/origin/main": {
+          "branchName": "refs/remotes/origin/main",
+          "buildNumber": 42,
+          "marked": {
+            "SHA1": "69e1a6ec93b1edb318a226023fb980fa0caaca19",
+            "name": "refs/remotes/origin/main"
+          },
+          "revision": {
+            "SHA1": "69e1a6ec93b1edb318a226023fb980fa0caaca19",
+            "name": "refs/remotes/origin/main"
+          }
+        }
+      }
+    },
+    {
+      "_class": "hudson.plugins.git.GitSCM",
+      "userRemoteConfigs": [
+        {
+          "url": "https://github.com/sogis/openshift-templates.git"
+        }
+      ]
+    }
+  ],
+  "changeSet": {
+    "_class": "hudson.plugins.git.GitChangeSetList",
+    "kind": "git",
+    "items": []
+  }
+}

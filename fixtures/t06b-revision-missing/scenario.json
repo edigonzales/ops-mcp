@@ -1,0 +1,63 @@
+{
+  "id": "t06b-revision-missing",
+  "title": "Revision fehlt lokal: REVISION_UNAVAILABLE ohne Ersatz durch B",
+  "expectation": "Jenkins verwendet Commit A (aaa1111...). Dieser Commit ist lokal NICHT vorhanden; HEAD waere Commit B mit anderen Probe-Werten. Es wird REVISION_UNAVAILABLE gemeldet und B ausdruecklich NICHT als Ersatz verwendet.",
+  "synthetic": true,
+  "tags": [
+    "t06",
+    "revision-missing",
+    "no-substitute"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "repo-files",
+  "revisionCommit": "ffff9999ffff9999ffff9999ffff9999ffff9999",
+  "headCommit": "9beaea31e951ae5ac9df6c8fac5735d97d689f21",
+  "configuredFiles": [
+    "t01-liveness-startup/repo/env/integration.env",
+    "t01-liveness-startup/repo/templates/modelfinder.yaml"
+  ],
+  "availableRepoFilesCommits": [
+    "cccc3333cccc3333cccc3333cccc3333cccc3333"
+  ],
+  "expectedErrorCode": "REVISION_UNAVAILABLE",
+  "expectedRawFiles": [
+    "jenkins/build-42-console.txt",
+    "jenkins/build-42-metadata.json",
+    "jenkins/job.json",
+    "k8s/deployment.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/pods.json",
+    "k8s/replicasets.json",
+    "repo-current/t01-liveness-startup/repo/env/integration.env",
+    "repo-current/t01-liveness-startup/repo/templates/modelfinder.yaml",
+    "repo-files/c0563524e661fe31844e23943c2e9bf1b4cda0e1/t01-liveness-startup/repo/env/integration.env",
+    "repo-files/c0563524e661fe31844e23943c2e9bf1b4cda0e1/t01-liveness-startup/repo/templates/modelfinder.yaml",
+    "repo/commits/commit-a/env/integration.env",
+    "repo/commits/commit-a/templates/modelfinder.yaml",
+    "repo/commits/commit-b/env/integration.env",
+    "repo/commits/commit-b/templates/modelfinder.yaml",
+    "repo/repo-setup.json"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "referenceFiles": [
+    "t01-liveness-startup/repo/templates/modelfinder.yaml",
+    "t01-liveness-startup/repo/env/integration.env"
+  ],
+  "_testConfig": {
+    "application": "modelfinder",
+    "environment": "integration",
+    "templateFiles": [
+      "t01-liveness-startup/repo/templates/modelfinder.yaml"
+    ],
+    "parameterFiles": [
+      "t01-liveness-startup/repo/env/integration.env"
+    ]
+  },
+  "availableRepoFilesCommit": "c0563524e661fe31844e23943c2e9bf1b4cda0e1"
+}

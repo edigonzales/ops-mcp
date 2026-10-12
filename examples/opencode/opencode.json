@@ -1,0 +1,46 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "//": "DIAGNOSEKONFIGURATION fuer den AGI Ops-Agenten (V1). Vor der Verwendung die Platzhalter /ABSOLUTER/PFAD/ZUM/ops-mcp durch absolute Pfade ersetzen. Fuer Entwicklungsarbeit am Repository gilt AGENTS.md, nicht dieses Profil.",
+
+  "mcp": {
+    "ops-agent": {
+      "type": "local",
+      "command": [
+        "/ABSOLUTER/PFAD/ZUM/ops-mcp/bin/ops-agent",
+        "--config",
+        "/ABSOLUTER/PFAD/ZUM/ops-mcp/config/fixture.example.yaml",
+        "serve"
+      ],
+      "cwd": "/ABSOLUTER/PFAD/ZUM/ops-mcp",
+      "enabled": true,
+      "//timeout": "Nur das Laden der Werkzeugliste. Das Laufzeit-Timeout des Aufrufs muss ueber dem Collect-Timeout liegen (90 s -> mindestens 120 s).",
+      "timeout": 30000,
+      "//environment": "Keine Zugangsdaten in dieser Datei. Der Fixturebetrieb braucht keine Credentials. Fuer den Livebetrieb liest der Server das Jenkins-Token aus einer lokalen Datei oder aus einer hier durchgereichten Variablen, z. B. OPS_AGENT_JENKINS_TOKEN."
+    }
+  },
+
+  "permission": {
+    "//": "Diagnosemodus: keine freie Shell, keine allgemeinen Schreibwerkzeuge, keine Websuche. Die Regeln werden von oben nach unten ausgewertet; die letzte passende Regel gewinnt.",
+    "*": "deny",
+
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "question": "allow",
+
+    "edit": "deny",
+    "bash": "deny",
+    "webfetch": "deny",
+    "websearch": "deny",
+    "task": "deny",
+    "skill": "deny",
+
+    "external_directory": {
+      "//": "Der MCP-Server schreibt den Snapshot selbst. Der Client braucht keinen Zugriff ausserhalb des Arbeitsverzeichnisses.",
+      "*": "deny"
+    },
+
+    "ops-agent_*": "allow"
+  }
+}

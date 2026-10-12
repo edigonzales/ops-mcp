@@ -1,0 +1,822 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/ops-agent/config-v1.schema.json",
+  "title": "AGI Ops-Agent V1 - lokale Konfiguration",
+  "description": "Vertrag der explizit gewaehlten lokalen Konfigurationsdatei (SCHNITTSTELLEN.md Abschnitt 1). Die Struktur entspricht ch.so.agi.ops.config.OpsConfig und den dort referenzierten Records. Unbekannte Schluessel werden abgelehnt; Ausnahme sind namespacete Erweiterungsfelder mit dem Praefix 'x-' (SPECIFIKATION_V1.md Abschnitt 9). Betriebsmodi sind 'fixture' und 'live'; im Modus 'fixture' ist der Abschnitt 'fixture' Pflicht, im Modus 'live' ist er unzulaessig. Die Kennungen der Abschnitte 'clusters', 'jenkins', 'repositories', 'applications' und 'environments' sind die Zuordnungsschluessel und entsprechen den id-Feldern der Java-Records (ClusterDefinition.id, JenkinsDefinition.id, RepositoryDefinition.id, ApplicationDefinition.id, EnvironmentDefinition-Schluessel). Ungeloeste Pflichtangaben einer Umgebung (z.B. namespace, workload.kind, workload.name, deployment.jobPath) bleiben null und fuehren zur Laufzeit zu CONFIG_INCOMPLETE; sie sind hier bewusst nicht erzwungen.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true
+  },
+  "required": [
+    "schemaVersion",
+    "mode",
+    "storage",
+    "clusters",
+    "jenkins",
+    "repositories",
+    "applications"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema-Version; in V1 genau 1 (OpsConfig.SUPPORTED_SCHEMA_VERSION)."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["fixture", "live"],
+      "description": "Betriebsmodus (DataMode). Wird ausschliesslich hier gewaehlt; keine automatische Umschaltung."
+    },
+    "storage": {
+      "$ref": "#/$defs/storage",
+      "description": "Lokaler Ausgabebereich (OpsConfig.storageRoot)."
+    },
+    "security": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/security" }
+      ],
+      "description": "Sicherheitseinstellungen (SecuritySettings). Fehlt der Abschnitt, gelten die Defaults des Loaders."
+    },
+    "limits": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/limits" }
+      ],
+      "description": "Ressourcengrenzen (Limits). Fehlt der Abschnitt, gelten Limits.defaults()."
+    },
+    "clusters": {
+      "$ref": "#/$defs/clusters",
+      "description": "Clusterdefinitionen nach Kennung (Map<String, ClusterDefinition>)."
+    },
+    "jenkins": {
+      "$ref": "#/$defs/jenkinsMap",
+      "description": "Jenkins-Instanzen nach Kennung (Map<String, JenkinsDefinition>)."
+    },
+    "repositories": {
+      "$ref": "#/$defs/repositories",
+      "description": "Repositorydefinitionen nach Kennung (Map<String, RepositoryDefinition>)."
+    },
+    "applications": {
+      "$ref": "#/$defs/applications",
+      "description": "Anwendungen nach Kennung (Map<String, ApplicationDefinition>)."
+    },
+    "fixture": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/fixture" }
+      ],
+      "description": "Fixtureeinstellungen (FixtureSettings). Nur im Modus 'fixture' zulaessig und dort Pflicht."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "mode": { "const": "fixture" } },
+        "required": ["mode"]
+      },
+      "then": {
+        "required": ["fixture"],
+        "properties": { "fixture": { "$ref": "#/$defs/fixture" } }
+      },
+      "else": {
+        "properties": { "fixture": { "type": "null" } }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "Nichtleere, begrenzte Kennung. Gilt fuer Zuordnungsschluessel und Referenzen darauf."
+    },
+    "localPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "description": "Lokale Pfadangabe. Relative Pfade werden gegen das Verzeichnis der Konfigurationsdatei aufgeloest. Als Abkuerzungen sind nur '~', '$HOME' und '${HOME}' zulaessig; keine beliebige Variablensubstitution und keine Shellauswertung."
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))[^/]+(?:/[^/]+)*$",
+      "description": "Portabler relativer Pfad ohne Traversal, ohne absoluten Anfang, ohne Backslash und ohne '.'/'..'-Segmente (PathSafety.isSafeRelativePath)."
+    },
+    "secretRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Secret-Referenz (JenkinsDefinition.SecretRef). Zugangsdaten stehen nie direkt im YAML, sondern nur als Datei- oder Umgebungsvariablenverweis. Mindestens eine der beiden Angaben ist erforderlich.",
+      "properties": {
+        "file": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/localPath" }
+          ],
+          "description": "Pfad einer lokalen Credential-Datei."
+        },
+        "environmentVar": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{0,63}$"
+            }
+          ],
+          "description": "Name einer ausdruecklich konfigurierten Umgebungsvariable in Grossbuchstaben."
+        }
+      },
+      "anyOf": [
+        {
+          "required": ["file"],
+          "properties": { "file": { "type": "string" } }
+        },
+        {
+          "required": ["environmentVar"],
+          "properties": { "environmentVar": { "type": "string" } }
+        }
+      ]
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Lokaler Ausgabebereich fuer Snapshots und Reports (OpsConfig.storageRoot).",
+      "required": ["root"],
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/localPath",
+          "description": "Wurzelverzeichnis fuer snapshots/ und reports/."
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "SecuritySettings. identityMode ist eine Betreiberdeklaration, kein automatisch verifizierter Rechtebeweis.",
+      "properties": {
+        "allowPersonalCredentials": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "boolean" }
+          ],
+          "default": false,
+          "description": "Freigabe eines persoenlichen Prototypzugangs. Default: false."
+        },
+        "modelDataPolicy": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          ],
+          "default": "internal-approved-only",
+          "description": "Freigabepolitik fuer die Modelluebermittlung. Dokumentierter V1-Wert: 'internal-approved-only' (SecuritySettings.POLICY_INTERNAL_APPROVED_ONLY)."
+        },
+        "identityMode": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "enum": ["restricted", "personal-prototype"]
+            }
+          ],
+          "default": "restricted",
+          "description": "Betreiberdeklaration der verwendeten Identitaet (SecuritySettings.IDENTITY_RESTRICTED / IDENTITY_PERSONAL_PROTOTYPE)."
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Limits. Die maximum-Werte sind die in ConfigLoader erzwungenen Hardlimits aus Limits; hoehere lokale Werte werden abgewiesen. Fehlende Felder erhalten den Default aus Limits.defaults().",
+      "properties": {
+        "collectTimeoutSeconds": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 180 }],
+          "default": 90,
+          "description": "Gesamtbudget der Erfassung in Sekunden (HARD_MAX_COLLECT_TIMEOUT_SECONDS = 180)."
+        },
+        "requestTimeoutSeconds": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 120 }],
+          "default": 15,
+          "description": "Timeout eines einzelnen HTTP-Aufrufs in Sekunden."
+        },
+        "connectTimeoutSeconds": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 60 }],
+          "default": 5,
+          "description": "Verbindungsaufbau-Timeout in Sekunden."
+        },
+        "maxParallelRequests": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 8 }],
+          "default": 3,
+          "description": "Maximale Parallelitaet der Quellaufrufe."
+        },
+        "maxRequests": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 120 }],
+          "default": 60,
+          "description": "Maximale Anzahl Quellaufrufe (HARD_MAX_REQUESTS = 120)."
+        },
+        "maxPods": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 16 }],
+          "default": 8,
+          "description": "Maximale Anzahl erfasster Pods (HARD_MAX_PODS = 16)."
+        },
+        "maxEvents": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 1000 }],
+          "default": 500,
+          "description": "Maximale Anzahl erfasster Events (HARD_MAX_EVENTS = 1000)."
+        },
+        "maxGitFiles": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1, "maximum": 64 }],
+          "default": 12,
+          "description": "Maximale Anzahl gelesener Git-Dateien."
+        },
+        "maxBuildLogBytes": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1024, "maximum": 67108864 }],
+          "default": 8388608,
+          "description": "Bytebudget des Jenkins-Console-Logs (maximal 64 MiB)."
+        },
+        "maxContainerLogBytes": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1024, "maximum": 16777216 }],
+          "default": 1048576,
+          "description": "Bytebudget je Container-Log (maximal 16 MiB)."
+        },
+        "maxTotalInputBytes": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1024, "maximum": 67108864 }],
+          "default": 33554432,
+          "description": "Gesamtbudget des Eingangs (HARD_MAX_TOTAL_INPUT_BYTES = 64 MiB)."
+        },
+        "maxEvidenceResponseBytes": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1024, "maximum": 65536 }],
+          "default": 32768,
+          "description": "Bytebudget einer einzelnen MCP-Evidenceantwort (HARD_MAX_EVIDENCE_RESPONSE_BYTES = 64 KiB)."
+        },
+        "maxReportDraftBytes": {
+          "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1024, "maximum": 262144 }],
+          "default": 262144,
+          "description": "Bytebudget eines Berichtsentwurfs (HARD_MAX_REPORT_DRAFT_BYTES = 256 KiB)."
+        }
+      }
+    },
+    "clusters": {
+      "type": "object",
+      "description": "Clusterdefinitionen nach Kennung. Die Kennung ist ClusterDefinition.id.",
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": { "$ref": "#/$defs/cluster" }
+    },
+    "cluster": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "ClusterDefinition. Der API-Server muss vor jedem Auftrag zur erlaubten Adresse passen; TLS-Abschaltung ist nicht vorgesehen.",
+      "properties": {
+        "server": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "pattern": "^https://[^\\s]+$"
+            }
+          ],
+          "description": "Erwartete API-Serveradresse. Muss https verwenden."
+        },
+        "ocExecutable": {
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/localPath" }],
+          "description": "Pfad des oc-Programms."
+        },
+        "kubeconfig": {
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/localPath" }],
+          "description": "Pfad der freigegebenen kubeconfig. Deren CA-Konfiguration wird verwendet."
+        },
+        "context": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 256 }
+          ],
+          "description": "Explizit konfigurierter Context. null bedeutet CONFIG_INCOMPLETE; es gibt keinen Default-Context."
+        },
+        "identityMode": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "enum": ["restricted", "personal-prototype"] }
+          ],
+          "default": "restricted",
+          "description": "Betreiberdeklaration der verwendeten Clusteridentitaet."
+        },
+        "directHosts": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1, "maxLength": 253 },
+              "uniqueItems": true
+            }
+          ],
+          "default": [],
+          "description": "Hosts, die in der Child-Umgebung in NO_PROXY und no_proxy zusammengefuehrt werden."
+        },
+        "allowedNamespaces": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1, "maxLength": 253 },
+              "uniqueItems": true
+            }
+          ],
+          "default": [],
+          "description": "Obere Berechtigungsgrenze der erlaubten Namespaces. Anwendungseintraege duerfen sie nur weiter einschraenken."
+        }
+      }
+    },
+    "jenkinsMap": {
+      "type": "object",
+      "description": "Jenkins-Instanzen nach Kennung. Die Kennung ist JenkinsDefinition.id.",
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": { "$ref": "#/$defs/jenkins" }
+    },
+    "jenkins": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "JenkinsDefinition. V1 aktiviert nur die konfigurierte Deployment-Instanz; dieselbe Adapterklasse kann spaeter weitere Instanzen bedienen.",
+      "properties": {
+        "baseUrl": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^https://[^\\s]+$" }
+          ],
+          "description": "Feste Basisadresse. Muss https verwenden; TLS-Abschaltung ist nicht vorgesehen."
+        },
+        "username": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 256 }
+          ],
+          "description": "Benutzername oder null."
+        },
+        "token": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/secretRef" }
+          ],
+          "description": "Secret-Referenz des API-Tokens (JenkinsDefinition.token)."
+        },
+        "tls": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/tls" }
+          ],
+          "description": "TLS-Einstellungen (JenkinsDefinition.TlsSettings)."
+        },
+        "proxy": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/proxy" }
+          ],
+          "description": "Proxy-Einstellungen (JenkinsDefinition.ProxySettings)."
+        },
+        "allowedJobPaths": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/jobPathList" }
+          ],
+          "default": [],
+          "description": "Obere Grenze erlaubter Folder-Jobpfade. Keine Strings mit '/job/'-URL-Teilen."
+        },
+        "allowedParameterNames": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/nameList" }
+          ],
+          "default": [],
+          "description": "Obere Grenze erlaubter Parameternamen."
+        }
+      }
+    },
+    "tls": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "JenkinsDefinition.TlsSettings. Eine zusaetzliche lokale CA wird nur im betreffenden HTTP-Client ergaenzt und nicht global installiert. Es gibt keine Option zum Abschalten der Pruefung.",
+      "properties": {
+        "additionalCaFile": {
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/localPath" }],
+          "description": "Zusaetzliche lokale CA-Datei."
+        }
+      }
+    },
+    "proxy": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "JenkinsDefinition.ProxySettings. Bei mode 'explicit' sind host und port erforderlich. Ein HTTP-407 wird erklaert und nicht durch TLS-Abschaltung umgangen.",
+      "properties": {
+        "mode": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "enum": ["direct", "explicit"] }
+          ],
+          "default": "direct",
+          "description": "Proxy-Modus (ProxySettings.MODE_DIRECT / MODE_EXPLICIT)."
+        },
+        "host": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 253 }
+          ],
+          "description": "Proxyhost bei mode 'explicit'."
+        },
+        "port": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1, "maximum": 65535 }
+          ],
+          "description": "Proxyport bei mode 'explicit'."
+        },
+        "username": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 256 }
+          ],
+          "description": "Proxybenutzer oder null."
+        },
+        "password": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/secretRef" }
+          ],
+          "description": "Secret-Referenz des Proxykennworts."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "mode": { "const": "explicit" } },
+            "required": ["mode"]
+          },
+          "then": {
+            "required": ["host", "port"],
+            "properties": {
+              "host": { "type": "string", "minLength": 1 },
+              "port": { "type": "integer" }
+            }
+          }
+        }
+      ]
+    },
+    "repositories": {
+      "type": "object",
+      "description": "Repositorydefinitionen nach Kennung. Die Kennung ist RepositoryDefinition.id.",
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": { "$ref": "#/$defs/repository" }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "RepositoryDefinition. V1 liest den lokalen Checkout; kein automatischer Clone, Fetch oder Pull.",
+      "required": ["repositoryId"],
+      "properties": {
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Repositorykennung, z.B. 'sogis/openshift-templates'."
+        },
+        "localPath": {
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/localPath" }],
+          "description": "Lokaler Checkout. null bedeutet CONFIG_INCOMPLETE fuer diese Quelle."
+        },
+        "allowedFiles": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/safeRelativePath" },
+              "uniqueItems": true
+            }
+          ],
+          "default": [],
+          "description": "Obere Grenze erlaubter relativer Dateipfade im Checkout."
+        }
+      }
+    },
+    "applications": {
+      "type": "object",
+      "description": "Anwendungen nach Kennung. Die Kennung ist ApplicationDefinition.id. Modelfinder ist Konfiguration und Fixture, kein Sonderfall im Code.",
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": { "$ref": "#/$defs/application" }
+    },
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "ApplicationDefinition.",
+      "required": ["environments"],
+      "properties": {
+        "displayName": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 256 }
+          ],
+          "description": "Anzeigename; ohne Angabe wird die Kennung verwendet."
+        },
+        "environments": {
+          "type": "object",
+          "description": "Umgebungen nach Kennung (ApplicationDefinition.environments). Die Kennung ist der Umgebungsname, z.B. 'integration'.",
+          "propertyNames": { "$ref": "#/$defs/id" },
+          "patternProperties": { "^x-": true },
+          "additionalProperties": { "$ref": "#/$defs/environment" }
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "EnvironmentDefinition. Ungeloeste null-Pflichtfelder fuehren fuer diesen Eintrag zu CONFIG_INCOMPLETE; es gibt keinen Defaultnamespace.",
+      "required": ["cluster"],
+      "properties": {
+        "cluster": {
+          "$ref": "#/$defs/id",
+          "description": "Kennung des Clusters aus dem Abschnitt 'clusters'."
+        },
+        "namespace": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 253 }
+          ],
+          "description": "Namespace innerhalb der oberen Berechtigungsgrenze des Clusters. null bedeutet CONFIG_INCOMPLETE."
+        },
+        "workload": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/workload" }
+          ],
+          "description": "Workload-Auswahl (WorkloadDefinition)."
+        },
+        "deployment": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/deployment" }
+          ],
+          "description": "Jenkins-Zuordnung (DeploymentDefinition)."
+        },
+        "configuration": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/configuration" }
+          ],
+          "description": "Konfigurationszuordnung (ConfigurationDefinition)."
+        }
+      }
+    },
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "WorkloadDefinition. containerNames ist eine explizite Auswahl innerhalb des ermittelten Workloads; eine leere Auswahl erlaubt Containermetadaten, aber nicht automatisch beliebige Logs.",
+      "properties": {
+        "kind": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "enum": ["Deployment", "DeploymentConfig"] }
+          ],
+          "description": "Workload-Art (WorkloadKind.kubernetesKind). null bedeutet CONFIG_INCOMPLETE."
+        },
+        "name": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 253 }
+          ],
+          "description": "Workload-Name. null bedeutet CONFIG_INCOMPLETE."
+        },
+        "containerNames": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/nameList" }
+          ],
+          "default": [],
+          "description": "Explizite Containerauswahl."
+        },
+        "allWorkloadContainers": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "boolean" }
+          ],
+          "default": false,
+          "description": "Ausdrueckliche lokale Policy fuer alle Container des Workloads; von doctor gefordert, wenn containerNames leer ist."
+        }
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "DeploymentDefinition.",
+      "properties": {
+        "jenkins": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/id" }
+          ],
+          "description": "Jenkins-Kennung aus dem Abschnitt 'jenkins'. null bedeutet CONFIG_INCOMPLETE."
+        },
+        "jobPath": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/jobPath" }
+          ],
+          "default": [],
+          "description": "Folder-Jobpfad als Liste von Segmenten, z.B. ['folder', 'application']. Leer bedeutet CONFIG_INCOMPLETE."
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "ConfigurationDefinition.",
+      "properties": {
+        "repository": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/id" }
+          ],
+          "description": "Repositorykennung aus dem Abschnitt 'repositories'."
+        },
+        "templateFiles": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/safeRelativePath" },
+              "uniqueItems": true
+            }
+          ],
+          "default": [],
+          "description": "Template-/Manifestdateien mit erlaubten relativen Pfaden."
+        },
+        "parameterFiles": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/safeRelativePath" },
+              "uniqueItems": true
+            }
+          ],
+          "default": [],
+          "description": "Parameterdateien (.env-aehnlich). Sie werden nie ausgefuehrt."
+        },
+        "allowedParameterNames": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/nameList" }
+          ],
+          "default": [],
+          "description": "Explizite Liste erlaubter Parameternamen."
+        },
+        "revision": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/revision" }
+          ],
+          "description": "Herkunft der Konfigurationsrevision (ConfigurationDefinition.RevisionDefinition)."
+        }
+      }
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "ConfigurationDefinition.RevisionDefinition. Bei source 'operator-supplied' sind commit und forBuild erforderlich; forBuild muss exakt der untersuchten Buildnummer entsprechen.",
+      "properties": {
+        "source": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "enum": ["jenkins-scm", "operator-supplied"] }
+          ],
+          "description": "Revisionsquelle (RevisionDefinition.Source.wireName())."
+        },
+        "repositoryId": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 256 }
+          ],
+          "description": "Repositorykennung, die zugeordnet werden muss."
+        },
+        "commit": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 7, "maxLength": 64 }
+          ],
+          "description": "Vollstaendiger Commit bei source 'operator-supplied'. Die Revision bleibt operator_supplied_unverified, bis unabhaengige Buildbelege die Zuordnung bestaetigen."
+        },
+        "forBuild": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1 }
+          ],
+          "description": "Buildnummer bei source 'operator-supplied'."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "source": { "const": "operator-supplied" } },
+            "required": ["source"]
+          },
+          "then": {
+            "required": ["commit", "forBuild"],
+            "properties": {
+              "commit": { "type": "string", "minLength": 7 },
+              "forBuild": { "type": "integer" }
+            }
+          }
+        }
+      ]
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "FixtureSettings. Nur im Modus 'fixture' zulaessig. Die Fixtureadapter verwenden dieselben Domaenenmodelle und Parser wie die Live-Adapter; das Szenario enthaelt Rohantworten, nicht die gewuenschte Enddiagnose.",
+      "required": ["root"],
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/localPath",
+          "description": "Wurzelverzeichnis der synthetischen Szenarien."
+        },
+        "scenario": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 128 }
+          ],
+          "description": "Standard-Szenario, z.B. 't01-liveness-startup'. Synthetische Bezeichnung, keine Betriebsangabe."
+        },
+        "clock": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "enum": ["fixed", "system"] }
+          ],
+          "default": "fixed",
+          "description": "Zeitquelle (FixtureSettings.CLOCK_FIXED / CLOCK_SYSTEM)."
+        },
+        "fixedNow": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time" }
+          ],
+          "description": "Fester Zeitpunkt bei clock 'fixed' (RFC3339, UTC), z.B. 2026-10-01T10:10:00Z."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "clock": { "enum": ["fixed", null] } }
+          },
+          "then": {
+            "required": ["fixedNow"],
+            "properties": { "fixedNow": { "type": "string" } }
+          }
+        }
+      ]
+    },
+    "jobPath": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Folder-Jobpfad als Liste nichtleerer Segmente ohne '/' und '..'.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^(?!.*\\.\\.)[^/\\\\]+$"
+      }
+    },
+    "jobPathList": {
+      "type": "array",
+      "description": "Liste erlaubter Folder-Jobpfade.",
+      "items": { "$ref": "#/$defs/jobPath" }
+    },
+    "nameList": {
+      "type": "array",
+      "description": "Liste von Namen (Container, Parameter).",
+      "items": { "type": "string", "minLength": 1, "maxLength": 256 },
+      "uniqueItems": true
+    }
+  }
+}

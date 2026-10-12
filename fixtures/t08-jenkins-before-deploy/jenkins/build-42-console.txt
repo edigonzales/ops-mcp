@@ -1,0 +1,10 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+[Pipeline] { (Checkout configuration)
+Cloning the remote Git repository
+fatal: could not read Username for 'https://github.com': No such device or address
+ERROR: Timeout after 30 seconds while waiting for the checkout of sogis/openshift-templates.
+ERROR: Checkout der Konfigurationsablage fehlgeschlagen; die Pipeline wird abgebrochen.
+[Pipeline] }
+Finished: FAILURE

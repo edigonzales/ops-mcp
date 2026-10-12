@@ -1,0 +1,6 @@
+{
+  "httpStatus": 403,
+  "url": "/api/v1/namespaces/fixture-integration/events?fieldSelector=involvedObject.uid%3Dfixture-pod-001",
+  "body": "{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"status\":\"Failure\",\"message\":\"events is forbidden: User \\\"fixture-reader\\\" cannot list resource \\\"events\\\" in API group \\\"\\\" in the namespace \\\"fixture-integration\\\"\",\"reason\":\"Forbidden\",\"code\":403}",
+  "note": "Synthetische Fehlerantwort. Sie belegt nur, dass diese Fixtureabfrage nicht erlaubt ist; sie ist kein Beweis ueber die tatsaechlichen RBAC-Rechte einer Liveidentitaet."
+}

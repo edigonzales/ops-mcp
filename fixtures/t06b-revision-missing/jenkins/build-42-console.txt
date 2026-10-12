@@ -1,0 +1,9 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+Checking out Revision 9beaea31e951ae5ac9df6c8fac5735d97d689f21 (refs/remotes/origin/main)
+[Pipeline] { (Deploy)
+oc rollout status deployment/fixture-modelfinder --timeout=600s
+error: timed out waiting for the condition
+ERROR: Rollout nicht abgeschlossen.
+Finished: FAILURE

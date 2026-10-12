@@ -1,0 +1,20 @@
+{
+  "repositoryId": "sogis/openshift-templates",
+  "branch": "main",
+  "commits": [
+    {
+      "id": "commit-a",
+      "sha": "c0563524e661fe31844e23943c2e9bf1b4cda0e1",
+      "message": "synthetische Fixture: Liveness der Anwendung anpassen",
+      "date": "2026-09-28T09:00:00Z",
+      "head": false
+    },
+    {
+      "id": "commit-b",
+      "sha": "9beaea31e951ae5ac9df6c8fac5735d97d689f21",
+      "message": "synthetische Fixture: Probe-Werte fuer HEAD anpassen",
+      "date": "2026-10-02T11:00:00Z",
+      "head": true
+    }
+  ]
+}

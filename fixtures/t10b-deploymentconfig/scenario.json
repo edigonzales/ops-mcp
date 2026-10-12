@@ -1,0 +1,37 @@
+{
+  "id": "t10b-deploymentconfig",
+  "title": "DeploymentConfig -> ReplicationController -> Pod",
+  "expectation": "Die Owner-Kette DeploymentConfig -> ReplicationController -> Pod wird korrekt nachvollzogen. Der DeploymentConfig-Typ wird nur soweit unterstuetzt, wie der Cluster ihn bereitstellt; ein nicht unterstuetzter Typ wird als solcher gemeldet, nicht simuliert.",
+  "synthetic": true,
+  "tags": [
+    "t10",
+    "deploymentconfig",
+    "owner-chain"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "fixture-service-b",
+  "environment": "legacy",
+  "namespace": "fixture-service-b-integration",
+  "workload": "fixture-legacy-application",
+  "workloadKind": "DeploymentConfig",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedRawFiles": [
+    "jenkins/build-42-console.txt",
+    "jenkins/build-42-metadata.json",
+    "jenkins/job.json",
+    "k8s/deploymentconfig.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-legacy-application-3-x8k2m--legacy-application.log",
+    "k8s/pods.json",
+    "k8s/replicationcontrollers.json"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "_testConfig": {
+    "application": "fixture-service-b",
+    "environment": "legacy",
+    "templateFiles": [],
+    "parameterFiles": []
+  },
+  "configuredFiles": []
+}

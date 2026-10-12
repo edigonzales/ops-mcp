@@ -1,0 +1,23 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+Running as SYSTEM
+Building in workspace /var/jenkins_home/workspace/fixture-folder/modelfinder
+The recommended git tool is: NONE
+Cloning the remote Git repository
+Checking out Revision c0563524e661fe31844e23943c2e9bf1b4cda0e1 (refs/remotes/origin/main)
+Commit message: "synthetische Fixture: Liveness der Anwendung anpassen"
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/fixture-folder/modelfinder/.git # timeout=10
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] { (Deploy)
+oc apply -f deployed/modelfinder.yaml
+deployment.apps/fixture-modelfinder configured
+[Pipeline] { (Wait for rollout)
+oc rollout status deployment/fixture-modelfinder --timeout=600s
+Waiting for deployment "fixture-modelfinder" rollout to finish: 0 of 1 updated replicas are available...
+Waiting for deployment "fixture-modelfinder" rollout to finish: 0 of 1 updated replicas are available...
+error: timed out waiting for the condition
+ERROR: Rollout von deployment/fixture-modelfinder innerhalb von 600s nicht abgeschlossen.
+ERROR: Exited with status 1 (rollout status)
+Finished: FAILURE

@@ -1,0 +1,11 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+[Pipeline] { (Deploy service-b)
+oc apply -f deployed/service-b.yaml
+deployment.apps/fixture-service-b configured
+[Pipeline] { (Wait for rollout)
+oc rollout status deployment/fixture-service-b --timeout=600s
+error: timed out waiting for the condition
+ERROR: Rollout von deployment/fixture-service-b innerhalb von 600s nicht abgeschlossen.
+Finished: FAILURE

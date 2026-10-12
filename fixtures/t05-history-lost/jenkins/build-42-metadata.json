@@ -1,0 +1,70 @@
+{
+  "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+  "number": 42,
+  "displayName": "42",
+  "building": false,
+  "result": "FAILURE",
+  "timestamp": 1788900000000,
+  "duration": 603000,
+  "estimatedDuration": 663000,
+  "url": "https://jenkins.fixture.invalid/job/fixture-folder/job/modelfinder/42/",
+  "id": "42",
+  "queueId": 4711,
+  "description": null,
+  "keepLog": false,
+  "actions": [
+    {
+      "_class": "hudson.model.ParametersAction",
+      "parameters": [
+        {
+          "_class": "hudson.model.StringParameterValue",
+          "name": "TARGET_NAMESPACE",
+          "value": "fixture-integration"
+        }
+      ]
+    },
+    {
+      "_class": "hudson.plugins.git.util.BuildData",
+      "lastBuiltRevision": {
+        "SHA1": "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+        "name": "refs/remotes/origin/main",
+        "branch": [
+          {
+            "SHA1": "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+            "name": "refs/remotes/origin/main"
+          }
+        ]
+      },
+      "remoteUrls": [
+        "https://github.com/sogis/openshift-templates.git"
+      ],
+      "buildsByBranchName": {
+        "refs/remotes/origin/main": {
+          "branchName": "refs/remotes/origin/main",
+          "buildNumber": 42,
+          "marked": {
+            "SHA1": "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+            "name": "refs/remotes/origin/main"
+          },
+          "revision": {
+            "SHA1": "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+            "name": "refs/remotes/origin/main"
+          }
+        }
+      }
+    },
+    {
+      "_class": "hudson.plugins.git.GitSCM",
+      "userRemoteConfigs": [
+        {
+          "url": "https://github.com/sogis/openshift-templates.git"
+        }
+      ]
+    }
+  ],
+  "changeSet": {
+    "_class": "hudson.plugins.git.GitChangeSetList",
+    "kind": "git",
+    "items": []
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "ReplicaSet",
+  "metadata": {
+    "resourceVersion": "fixture-rv-1"
+  },
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "ReplicaSet",
+      "metadata": {
+        "name": "fixture-modelfinder-7d9c4b6f5c",
+        "namespace": "fixture-integration",
+        "uid": "fixture-rs-002",
+        "creationTimestamp": "2026-10-01T09:58:05Z",
+        "resourceVersion": "fixture-rv-300",
+        "generation": 1,
+        "labels": {
+          "app": "fixture-modelfinder",
+          "pod-template-hash": "fixturehash3"
+        },
+        "annotations": {
+          "deployment.kubernetes.io/revision": "3",
+          "deployment.kubernetes.io/desired-replicas": "1",
+          "deployment.kubernetes.io/max-replicas": "2",
+          "fixture.synthetic/note": "synthetische Fixture, keine Betriebsdaten"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "name": "fixture-modelfinder",
+            "uid": "fixture-deployment-modelfinder-001",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "fixture-modelfinder",
+            "pod-template-hash": "fixturehash3"
+          }
+        },
+        "template": {
+          "metadata": {
+            "creationTimestamp": "2026-10-01T09:58:05Z",
+            "labels": {
+              "app": "fixture-modelfinder",
+              "pod-template-hash": "fixturehash3"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "modelfinder",
+                "image": "registry.fixture.invalid/fixture/modelfinder:2026.10.1",
+                "ports": [
+                  {
+                    "name": "http",
+                    "containerPort": 8080
+                  }
+                ],
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": 8080,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 10,
+                  "periodSeconds": 10,
+                  "timeoutSeconds": 1,
+                  "successThreshold": 1,
+                  "failureThreshold": 3
+                }
+              }
+            ],
+            "terminationGracePeriodSeconds": 30
+          }
+        }
+      },
+      "status": {
+        "replicas": 1,
+        "fullyLabeledReplicas": 1,
+        "readyReplicas": 0,
+        "availableReplicas": 0,
+        "observedGeneration": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,631 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/ops-agent/snapshot-v1.schema.json",
+  "title": "AGI Ops-Agent V1 - Snapshotmanifest",
+  "description": "Snapshotvertrag nach SCHNITTSTELLEN.md Abschnitt 5 fuer die Datei snapshots/<snapshotId>/manifest.json. Die Struktur entspricht ch.so.agi.ops.snapshot.SnapshotManifest einschliesslich BuildRefView, SourceSummary, SnapshotLink, EvidenceIndexEntry und RedactionSummary sowie dem schreibenden und lesenden ManifestCodec. Die in Abschnitt 5.2 genannten Pflichtfelder sind vorhanden und duerfen nicht null sein; 'warnings' und 'errors' sind optional, weil der Codec sie nur bei Inhalt schreibt. Der Zielblock 'target' ist Pflicht: ManifestCodec schreibt und liest die Record-Komponenten clusterId, namespace, workloadKind und workloadName ausschliesslich dort. Unbekannte Felder werden abgelehnt; Ausnahme sind namespacete Erweiterungsfelder mit dem Praefix 'x-' (SPECIFIKATION_V1.md Abschnitt 9). Alle Pfade sind relative, portable Pfade innerhalb des Snapshotverzeichnisses; Hashes beziehen sich auf gespeicherte, bereits bereinigte Inhalte und sind kein Vertrauens- oder Kausalitaetsbeweis.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true
+  },
+  "required": [
+    "schemaVersion",
+    "snapshotId",
+    "useCase",
+    "dataMode",
+    "applicationId",
+    "environment",
+    "buildRef",
+    "target",
+    "collectionStartedAt",
+    "collectionFinishedAt",
+    "investigationWindow",
+    "collectionStatus",
+    "sourceResults",
+    "links",
+    "evidenceIndex",
+    "redaction",
+    "toolVersions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema-Version; in V1 genau 1 (SnapshotManifest.SCHEMA_VERSION)."
+    },
+    "snapshotId": {
+      "$ref": "#/$defs/snapshotId",
+      "description": "Zufaellig erzeugte, pfadsichere ID (SnapshotId)."
+    },
+    "useCase": {
+      "type": "string",
+      "const": "deployment-failure",
+      "description": "Verwendungszweck; in V1 nur deployment-failure (SnapshotManifest.USE_CASE_DEPLOYMENT_FAILURE)."
+    },
+    "dataMode": {
+      "type": "string",
+      "enum": ["fixture", "live"],
+      "description": "Betriebsmodus (DataMode.wireName()); wird nie weggelassen."
+    },
+    "applicationId": {
+      "$ref": "#/$defs/id",
+      "description": "Bestaetigte Anwendung."
+    },
+    "environment": {
+      "$ref": "#/$defs/id",
+      "description": "Bestaetigte Umgebung."
+    },
+    "buildRef": {
+      "$ref": "#/$defs/buildRef",
+      "description": "Jenkins-Bezug: Jenkins-ID, Jobsegmente und konkrete Nummer. Die Verfuegbarkeit strukturierter Buildmetadaten wird gesondert ausgewiesen."
+    },
+    "target": {
+      "$ref": "#/$defs/target",
+      "description": "Aufgeloestes Ziel: clusterId, namespace, workloadKind und workloadName aus SnapshotManifest. ManifestCodec schreibt und liest diese Felder ausschliesslich hier; einzelne Werte duerfen null sein, wenn die Zuordnung unvollstaendig ist (CONFIG_INCOMPLETE)."
+    },
+    "collectionStartedAt": {
+      "$ref": "#/$defs/timestamp",
+      "description": "Beginn der Erfassung (UTC, RFC3339)."
+    },
+    "collectionFinishedAt": {
+      "$ref": "#/$defs/timestamp",
+      "description": "Ende der Erfassung (UTC, RFC3339)."
+    },
+    "investigationWindow": {
+      "$ref": "#/$defs/investigationWindow",
+      "description": "Fachliches Zeitfenster und seine Herkunft. Ohne Buildzeit wird kein historisches Fenster erfunden."
+    },
+    "collectionStatus": {
+      "type": "string",
+      "enum": ["complete", "partial", "failed"],
+      "description": "Qualitativer Status der geplanten begrenzten Erfassung (CollectionStatus.wireName()). 'complete' bedeutet nicht, dass die Historie vollstaendig ist oder die Ursache bewiesen wurde."
+    },
+    "sourceResults": {
+      "type": "array",
+      "description": "Status je geplantem Quellzugriff, mit Warnungen und Luecken. Eine leere Liste ist kein Ersatz fuer eine Exception.",
+      "items": { "$ref": "#/$defs/sourceSummary" }
+    },
+    "links": {
+      "type": "array",
+      "description": "Beziehungen Build <-> Workload/Revision <-> Konfiguration mit Linkstaerke und Belegen.",
+      "items": { "$ref": "#/$defs/link" }
+    },
+    "evidenceIndex": {
+      "type": "array",
+      "description": "Evidence-ID, Art, Herkunft, redigierter relativer Pfad, Hash und Zeilenanzahl.",
+      "items": { "$ref": "#/$defs/evidenceIndexEntry" }
+    },
+    "redaction": {
+      "$ref": "#/$defs/redaction",
+      "description": "Regelversion, Zaehler und bekannte Einschraenkungen der Redaktion. Niemals entfernte Secretwerte."
+    },
+    "toolVersions": {
+      "type": "object",
+      "description": "Versionen der verwendeten Werkzeuge, z.B. java, application, oc, git. Keine kompletten Systemdumps.",
+      "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 256 }
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Gesammelte Warnungen des Auftrags, z.B. Budgetabbruch oder fehlende erwartete historische Daten.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Gesammelte, redigierte Fehler des Auftrags.",
+      "items": { "$ref": "#/$defs/opsError" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "Nichtleere, begrenzte Kennung."
+    },
+    "snapshotId": {
+      "type": "string",
+      "pattern": "^[0-9]{8}T[0-9]{6}Z-[a-z0-9]{8}$",
+      "minLength": 25,
+      "maxLength": 25,
+      "description": "Pfadsichere Snapshot-ID (SnapshotId): UTC-Zeitstempel, Bindestrich, acht Kleinbuchstaben oder Ziffern."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt in UTC nach RFC3339, z.B. 2026-10-01T10:00:00Z."
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))[^/]+(?:/[^/]+)*$",
+      "description": "Portabler relativer Pfad ohne Traversal, ohne absoluten Anfang, ohne Backslash und ohne '.'/'..'-Segmente (PathSafety.isSafeRelativePath)."
+    },
+    "buildRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "SnapshotManifest.BuildRefView. ManifestCodec schreibt alle vier Felder, wenn ein Build aufgeloest wurde, und ein leeres Objekt, wenn kein Buildbezug vorliegt; deshalb sind die Einzelfelder hier nicht erzwungen.",
+      "properties": {
+        "instanceId": {
+          "$ref": "#/$defs/id",
+          "description": "Kennung der Jenkins-Instanz aus der lokalen Konfiguration."
+        },
+        "jobPath": {
+          "type": "array",
+          "description": "Folder-Jobpfad als Liste von Segmenten.",
+          "items": { "$ref": "#/$defs/jobPathSegment" }
+        },
+        "buildNumber": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Konkrete Jenkins-Buildnummer."
+        },
+        "metadataAvailable": {
+          "type": "boolean",
+          "description": "Ob strukturierte Buildmetadaten vorlagen."
+        }
+      }
+    },
+    "jobPathSegment": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^(?!.*\\.\\.)[^/\\\\]+$",
+      "description": "Ein Segment eines Folder-Jobpfads; ohne '/' und ohne '..'."
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Aufgeloestes Ziel; ManifestCodec schreibt und liest genau diese vier Felder.",
+      "required": ["clusterId", "namespace", "workloadKind", "workloadName"],
+      "properties": {
+        "clusterId": {
+          "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/id" }],
+          "description": "Kennung des Clusters aus der lokalen Konfiguration."
+        },
+        "namespace": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 253 }
+          ],
+          "description": "Erlaubter Namespace."
+        },
+        "workloadKind": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 64 }
+          ],
+          "description": "Workload-Art, z.B. Deployment oder DeploymentConfig."
+        },
+        "workloadName": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 253 }
+          ],
+          "description": "Workload-Name."
+        }
+      }
+    },
+    "investigationWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "InvestigationWindow. Standardfenster bei abgeschlossenem Build: Start minus zwei Minuten bis Ende plus zwei Minuten; die Herleitung wird gespeichert.",
+      "required": ["from", "to", "timeBasis", "derivation"],
+      "properties": {
+        "from": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/timestamp" }
+          ],
+          "description": "Fensterbeginn oder null, wenn kein historisches Fenster gebildet werden kann."
+        },
+        "to": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/timestamp" }
+          ],
+          "description": "Fensterende oder null."
+        },
+        "timeBasis": {
+          "type": "string",
+          "enum": ["build-start-and-end", "build-start-and-collection", "unknown"],
+          "description": "Herleitung des Fensters (InvestigationWindow.TimeBasis.wireName()). 'unknown': keine Buildzeit bekannt, das Fenster ist die aktuelle Erfassung und keine Historie."
+        },
+        "derivation": {
+          "type": "string",
+          "description": "Klartextherleitung des Fensters."
+        }
+      }
+    },
+    "sourceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "SourceSummary: Ergebnis einer einzelnen geplanten Quelle. Jede Quelle berichtet explizit, ob Daten erhoben, nicht vorhanden, nicht anwendbar, nicht erlaubt, abgeschnitten oder technisch nicht erreichbar sind.",
+      "required": ["sourceId", "status", "evidenceIds"],
+      "properties": {
+        "sourceId": {
+          "$ref": "#/$defs/id",
+          "description": "Kennung der Quelle (Cluster, Jenkins-Instanz, Repository, Zielpfad)."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "COLLECTED",
+            "NOT_PRESENT",
+            "NOT_APPLICABLE",
+            "NOT_ALLOWED",
+            "TRUNCATED",
+            "UNREACHABLE",
+            "NOT_ATTEMPTED"
+          ],
+          "description": "Erfassungsstatus der Quelle (SourceStatus.name(), wie von SourceSummary.toMap() geschrieben). NOT_PRESENT und NOT_APPLICABLE sind regulaere fachliche Ergebnisse und keine technische Luecke; TRUNCATED, UNREACHABLE und NOT_ALLOWED ergeben mindestens partial."
+        },
+        "collectedAt": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/timestamp" }
+          ],
+          "description": "Erfassungszeit dieser Quelle."
+        },
+        "evidenceCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Anzahl der erzeugten Evidence-Eintraege (abgeleitet, aus SourceSummary.toMap())."
+        },
+        "evidenceIds": {
+          "type": "array",
+          "description": "Erzeugte Evidence-IDs.",
+          "items": { "$ref": "#/$defs/evidenceId" }
+        },
+        "notes": {
+          "type": "array",
+          "description": "Hinweise fachlicher Art, ohne Zugangsdaten.",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "errors": {
+          "type": "array",
+          "description": "Strukturierte, redigierte Fehler dieser Quelle.",
+          "items": { "$ref": "#/$defs/opsError" }
+        }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "SnapshotLink zwischen zwei Systemen. Zeitnaehe und gleicher Image-Tag allein ergeben keinen exakten Nachweis.",
+      "required": ["from", "to", "relation", "strength", "reason", "evidenceRefs"],
+      "properties": {
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Ausgangsknoten, z.B. build:apps-deploy/datenportal#42."
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Zielknoten, z.B. workload:ocp/fixture-integration/Deployment/fixture-modelfinder."
+        },
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Beziehungsart, z.B. build-to-workload."
+        },
+        "strength": {
+          "type": "string",
+          "enum": ["exact", "probable", "ambiguous", "unlinked"],
+          "description": "Belegstaerke der Zuordnung (LinkStrength.name() in Kleinschreibung, wie von SnapshotLink.toMap() geschrieben). Nur 'exact' erlaubt eine Kausalaussage."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Begruendung der Einstufung."
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "description": "Tragende Evidence-IDs.",
+          "items": { "$ref": "#/$defs/evidenceId" }
+        },
+        "limitations": {
+          "type": "array",
+          "description": "Grenzen der Zuordnung.",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "evidenceId": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 32,
+      "pattern": "^EV-[0-9]{4,}$",
+      "description": "Evidence-ID, z.B. EV-0004. ManifestCodec weist beim Lesen jede andere Form als ARTIFACT_INTEGRITY ab."
+    },
+    "evidenceIndexEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "EvidenceIndexEntry. Die Pflichtfelder id, type, sourceId, sha256, dataMode sowie locator.path und locator.lineCount entsprechen dem Beispiel in SCHNITTSTELLEN.md Abschnitt 5.4 und den Pruefungen von ManifestCodec; byteSize und lineCount werden zusaetzlich auch auf oberster Ebene geschrieben.",
+      "required": ["id", "type", "sourceId", "sha256", "byteSize", "locator", "dataMode"],
+      "properties": {
+        "id": { "$ref": "#/$defs/evidenceId" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "jenkins-build-metadata",
+            "jenkins-console-log",
+            "kubernetes-workload",
+            "kubernetes-revision",
+            "kubernetes-pod",
+            "kubernetes-container-log",
+            "kubernetes-event",
+            "git-configuration",
+            "fixture-scenario"
+          ],
+          "description": "Evidence-Art (EvidenceType.wireName()). In V1 werden nur diese Werte erzeugt."
+        },
+        "sourceId": {
+          "$ref": "#/$defs/id",
+          "description": "Kennung der Quelle."
+        },
+        "object": {
+          "$ref": "#/$defs/objectRef",
+          "description": "Betroffenes Betriebsobjekt, soweit bekannt."
+        },
+        "observedAt": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/timestamp" }
+          ],
+          "description": "Fachlicher Zeitbezug, soweit bekannt. Fehlende Zeiten und Eventaggregation werden explizit dargestellt."
+        },
+        "collectedAt": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/timestamp" }
+          ],
+          "description": "Erfassungszeit."
+        },
+        "locator": {
+          "$ref": "#/$defs/locator",
+          "description": "Herkunft des Belegs im Quellsystem und redigierter relativer Pfad."
+        },
+        "provenance": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 512 }
+          ],
+          "description": "Redigierte Provenienz (Projektion von Locator.sourcePath, wie von EvidenceIndexEntry.toMap() geschrieben)."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 des gespeicherten, bereits bereinigten Inhalts. Kein Beweis fuer das unbekannte Original."
+        },
+        "lineCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Record-Komponente EvidenceIndexEntry.lineCount; derselbe Wert wie locator.lineCount."
+        },
+        "byteSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Groesse der gespeicherten Darstellung in Bytes. ManifestCodec weist einen fehlenden oder nicht positiven Wert beim Lesen ab."
+        },
+        "path": {
+          "$ref": "#/$defs/safeRelativePath",
+          "description": "Record-Komponente EvidenceIndexEntry.path; derselbe Wert wie locator.path."
+        },
+        "dataMode": {
+          "type": "string",
+          "enum": ["fixture", "live"],
+          "description": "Betriebsmodus dieser Evidence."
+        },
+        "derivedFrom": {
+          "type": "array",
+          "description": "Evidence-IDs, aus denen diese Evidence abgeleitet wurde.",
+          "items": { "$ref": "#/$defs/evidenceId" }
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Kurze Inhaltsbeschreibung, z.B. 'Jenkins-Buildmetadaten'; wird bei leerem Text weggelassen."
+        },
+        "notes": {
+          "type": "array",
+          "description": "Hinweise, insbesondere Aggregation, Luecken und Redaktion.",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "objectRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "ObjectRef. Eine UID ist der belastbare Zugehoerigkeitsbeweis, ein Name allein nicht: gleichnamige, neu erzeugte Pods haben eine andere UID. ManifestCodec schreibt kind, namespace und name immer, wenn ein Objekt vorliegt.",
+      "required": ["kind", "namespace", "name"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Kubernetes-Art, z.B. Pod oder ReplicaSet."
+        },
+        "namespace": {
+          "type": "string",
+          "maxLength": 253,
+          "description": "Namespace des Objekts; leer, wenn die Quelle keinen liefert."
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 253,
+          "description": "Name des Objekts."
+        },
+        "uid": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 128 }
+          ],
+          "description": "UID des Objekts oder null, wenn die Quelle keine liefert."
+        }
+      }
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Herkunft und redigierter Pfad eines Belegs. ManifestCodec schreibt und liest path, lineCount und byteSize; die uebrigen Felder des Locator-Records werden nur zusaetzlich zugelassen. Es werden niemals Zugangsdaten, Header oder Secretwerte uebernommen.",
+      "required": ["path", "lineCount"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safeRelativePath",
+          "description": "Redigierter relativer Pfad im Snapshotverzeichnis, z.B. evidence/EV-0004.txt."
+        },
+        "lineCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Zeilenanzahl der gespeicherten Darstellung. Zeilennummern sind stabil und beziehen sich auf den bereinigten Text."
+        },
+        "byteSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Groesse der gespeicherten Darstellung in Bytes (ManifestCodec schreibt den Wert auch im Locator)."
+        },
+        "sourcePath": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 512 }
+          ],
+          "description": "Pfad/Feld innerhalb der Quelle, z.B. spec.template.spec.containers[0].livenessProbe (Locator.sourcePath)."
+        },
+        "sourceLineFrom": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1 }
+          ],
+          "description": "Erste Zeile im Quelltext, falls bekannt (1-basiert)."
+        },
+        "sourceLineTo": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1 }
+          ],
+          "description": "Letzte Zeile im Quelltext, falls bekannt (1-basiert)."
+        },
+        "sourceByteFrom": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 0 }
+          ],
+          "description": "Erste Byteposition im Quellstrom, falls bekannt."
+        },
+        "streamingOrAggregated": {
+          "type": "boolean",
+          "default": false,
+          "description": "Wahr, wenn Zaehler aggregiert oder ein Stream abgeschnitten wurde."
+        },
+        "truncationNote": {
+          "type": "string",
+          "description": "Klartextnotiz zu einer Truncation; leer, wenn nichts abgeschnitten wurde."
+        }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "RedactionSummary. Es werden niemals entfernte Secretwerte mitgespeichert. Regex-Redaktion ist keine vollstaendige Anonymisierung.",
+      "required": ["ruleVersion", "counts", "totalCount", "limitations"],
+      "properties": {
+        "ruleVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Regelversion der Redaktion."
+        },
+        "counts": {
+          "type": "object",
+          "description": "Zaehler je Regelname.",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "totalCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Gesamtzahl der Ersetzungen."
+        },
+        "limitations": {
+          "type": "array",
+          "description": "Bekannte Einschraenkungen der Redaktion.",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "opsError": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Strukturierter, redigierter Fehler nach SCHNITTSTELLEN.md Abschnitt 7. Es werden niemals Zugangsdaten, Tokenwerte, kubeconfig-Inhalte oder vollstaendige Umgebungen uebernommen.",
+      "required": ["code", "sourceId", "message", "retryable"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "CONFIG_INVALID",
+            "CONFIG_INCOMPLETE",
+            "TARGET_AMBIGUOUS",
+            "TARGET_EXPIRED",
+            "SCOPE_DENIED",
+            "DNS_FAILURE",
+            "CONNECT_TIMEOUT",
+            "REQUEST_TIMEOUT",
+            "PROXY_AUTH_REQUIRED",
+            "TLS_UNTRUSTED_CA",
+            "AUTH_REQUIRED",
+            "FORBIDDEN",
+            "NOT_FOUND",
+            "UNSUPPORTED_WORKLOAD",
+            "NO_PREVIOUS_LOG",
+            "REVISION_UNKNOWN",
+            "REVISION_UNVERIFIED",
+            "REVISION_UNAVAILABLE",
+            "DATA_TRUNCATED",
+            "BUDGET_EXCEEDED",
+            "SOURCE_PARSE_ERROR",
+            "REPORT_INVALID",
+            "ARTIFACT_INTEGRITY",
+            "INVALID_INPUT",
+            "INPUT_TOO_LONG",
+            "INTERNAL_ERROR"
+          ],
+          "description": "Stabiler Fehlercode (ErrorCode). Die ersten 22 Werte sind der Vertrag aus SCHNITTSTELLEN.md Abschnitt 7; ARTIFACT_INTEGRITY, INVALID_INPUT, INPUT_TOO_LONG und INTERNAL_ERROR ergaenzt ErrorCode zusaetzlich."
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Kennung der betroffenen Quelle; 'unknown', wenn keine Quelle bestimmbar ist."
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Redigierte, fachliche Erklaerung."
+        },
+        "retryable": {
+          "type": "boolean",
+          "description": "Ob ein begrenzter Retry innerhalb desselben Budgets zulaessig ist. Niemals bei 401/403/407 oder fehlendem Vertrauen."
+        },
+        "suggestedAction": {
+          "type": "string",
+          "description": "Konkreter manueller naechster Schritt fuer den Betreiber; wird bei leerem Text weggelassen."
+        }
+      }
+    }
+  }
+}

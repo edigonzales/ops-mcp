@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/ops-agent/diagnosis-v1.schema.json",
+  "title": "AGI Ops-Agent V1 - Diagnosebericht",
+  "description": "Diagnosevertrag nach SCHNITTSTELLEN.md Abschnitt 6. Die Struktur entspricht ch.so.agi.ops.report.DiagnosisDocument einschliesslich Fact, Hypothesis, TimelineEntry, Recommendation und EvidenceRef. Unbekannte Felder werden abgelehnt; Ausnahme sind namespacete Erweiterungsfelder mit dem Praefix 'x-' (SPECIFIKATION_V1.md Abschnitt 9). Es gibt bewusst keine Prozent-Konfidenz: die Belegstaerke ist qualitativ (supported, plausible, weak, contradicted). Ein Bericht ist an genau einen Snapshot gebunden; jede Evidence-Referenz muss zu diesem Snapshot gehoeren.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true
+  },
+  "required": [
+    "schemaVersion",
+    "snapshotId",
+    "language",
+    "assessment",
+    "title",
+    "summary"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema-Version; in V1 genau 1 (DiagnosisDocument.SCHEMA_VERSION)."
+    },
+    "snapshotId": {
+      "$ref": "#/$defs/snapshotId",
+      "description": "Gebundener Snapshot. Ein Bericht kann keinen fremden Snapshot referenzieren."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["de-CH"],
+      "description": "Sprache des Berichts; in V1 de-CH (DiagnosisDocument.LANGUAGE_DE_CH)."
+    },
+    "assessment": {
+      "$ref": "#/$defs/assessment",
+      "description": "Gesamtbewertung (AssessmentStatus.wireName()). 'no_failure_evidenced' bedeutet nicht 'System ist fehlerfrei'."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "Kurzer Titel; Obergrenze wie DiagnosisValidator.MAX_TITLE_LENGTH."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "description": "Zusammenfassung; Obergrenze wie DiagnosisValidator.MAX_SUMMARY_LENGTH. Jede umgebungsspezifische Tatsachenbehauptung stuetzt sich auf Evidence oder auf bereits belegte Fact-IDs."
+    },
+    "facts": {
+      "type": "array",
+      "description": "Belegte Tatsachen. Mindestens eine Evidence-Referenz je Fact.",
+      "items": { "$ref": "#/$defs/fact" }
+    },
+    "hypotheses": {
+      "type": "array",
+      "description": "Konkurrierende Erklaerungen mit qualitativer Belegstaerke.",
+      "items": { "$ref": "#/$defs/hypothesis" }
+    },
+    "timeline": {
+      "type": "array",
+      "description": "Ereignisfolge. 'at' darf null sein; aus Logzeilennummern, Reihenfolge oder Annahmen werden keine Zeitstempel erzeugt.",
+      "items": { "$ref": "#/$defs/timelineEntry" }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Nicht ausgefuehrte Korrekturvorschlaege; immer mit executed: false.",
+      "items": { "$ref": "#/$defs/recommendation" }
+    },
+    "openQuestions": {
+      "type": "array",
+      "description": "Offene Punkte.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "limitations": {
+      "type": "array",
+      "description": "Bekannte Grenzen der Untersuchung.",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "actionsTaken": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "In V1 immer leer: Es werden keine Aenderungen an den untersuchten Systemen ausgefuehrt. Die lokale Speicherung des Berichts gilt nicht als Reparatur. Die deterministische Darstellung ergaenzt 'Keine Aenderungen an den untersuchten Systemen ausgefuehrt'.",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "snapshotId": {
+      "type": "string",
+      "pattern": "^[0-9]{8}T[0-9]{6}Z-[a-z0-9]{8}$",
+      "minLength": 25,
+      "maxLength": 25,
+      "description": "Zufaellig erzeugte, pfadsichere Snapshot-ID (SnapshotId): UTC-Zeitstempel yyyyMMdd'T'HHmmss'Z', Bindestrich, acht Kleinbuchstaben oder Ziffern. Kein vom Modell editierbares Scopeobjekt."
+    },
+    "assessment": {
+      "type": "string",
+      "enum": [
+        "cause_identified",
+        "probable_cause",
+        "multiple_hypotheses",
+        "insufficient_evidence",
+        "no_failure_evidenced"
+      ]
+    },
+    "strength": {
+      "type": "string",
+      "enum": ["supported", "plausible", "weak", "contradicted"],
+      "description": "Qualitative Belegstaerke (DiagnosisDocument.Strength.wireName()). Keine Prozentwerte."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "Nichtleere, begrenzte Kennung, z.B. F-1 oder H-1."
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Belegreferenz mit optionalem Zeilenbereich (DiagnosisDocument.EvidenceRef). Die Evidence-ID muss im gebundenen Snapshot existieren.",
+      "required": ["evidenceId"],
+      "properties": {
+        "evidenceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "description": "Evidence-ID im gebundenen Snapshot, z.B. EV-0004."
+        },
+        "startLine": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-basierte Startzeile."
+        },
+        "endLine": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-basierte Endzeile."
+        }
+      }
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Belegte Tatsache (DiagnosisDocument.Fact). Runbookwissen ist kein Beleg dafuer, dass ein Ereignis tatsaechlich stattgefunden hat.",
+      "required": ["id", "statement", "evidence"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "description": "Tatsachenbehauptung; Obergrenze wie DiagnosisValidator.MAX_STATEMENT_LENGTH."
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidenceRef" }
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Erklaerungshypothese (DiagnosisDocument.Hypothesis). Es gibt kein Konfidenz-Prozentfeld; unbekannte Felder wie 'confidence' werden abgelehnt.",
+      "required": ["id", "category", "statement", "strength"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Kategorie aus dem Runbook, z.B. 'startup-budget'."
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "description": "Hypothese; Obergrenze wie DiagnosisValidator.MAX_STATEMENT_LENGTH."
+        },
+        "strength": { "$ref": "#/$defs/strength" },
+        "supports": {
+          "type": "array",
+          "description": "Fact-IDs, die die Hypothese stuetzen.",
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "counterEvidence": {
+          "type": "array",
+          "description": "Evidence-Referenzen, die gegen die Hypothese sprechen.",
+          "items": { "$ref": "#/$defs/evidenceRef" }
+        },
+        "limitations": {
+          "type": "array",
+          "description": "Grenzen der Hypothese.",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "timelineEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Ereignis in der Zeitleiste (DiagnosisDocument.TimelineEntry).",
+      "required": ["description"],
+      "properties": {
+        "at": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time" }
+          ],
+          "description": "Zeitpunkt oder null. null ist zulaessig, wenn keine belastbare Zeitangabe vorliegt."
+        },
+        "timeBasis": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "default": "unknown",
+          "description": "Herkunft der Zeitangabe, z.B. 'event-lastTimestamp', 'derived' oder 'unknown'. Ableitungen werden als solche gekennzeichnet."
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidenceRef" }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": true },
+      "description": "Nicht ausgefuehrter Korrekturvorschlag (DiagnosisDocument.Recommendation). Es gibt keine JSON-Felder fuer auszufuehrende Kommandos.",
+      "required": ["description", "executed"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "rationale": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Begruendung des Vorschlags."
+        },
+        "basedOnHypotheses": {
+          "type": "array",
+          "description": "Hypothesen-IDs, auf denen der Vorschlag beruht.",
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "risk": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Risiko des Vorschlags."
+        },
+        "verification": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1 }
+          ],
+          "description": "Vorgeschlagene spaetere menschliche Verifikation."
+        },
+        "executed": {
+          "const": false,
+          "description": "In V1 immer false. Ein Berichtsentwurf mit executed: true wird abgewiesen."
+        }
+      }
+    }
+  }
+}

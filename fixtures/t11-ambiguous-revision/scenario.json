@@ -1,0 +1,34 @@
+{
+  "id": "t11-ambiguous-revision",
+  "title": "Mehrdeutige Revision und gleichnamiger Pod",
+  "expectation": "Zwei plausible ReplicaSets mit gleichem Image-Tag; alte und neu erzeugte Podinstanz mit gleichem Namen, aber anderer UID. Die Events gehoeren zur alten UID. Es darf keine falsche Eventzuordnung und keine exakte Buildursache aus blosser Zeitnaehe entstehen.",
+  "synthetic": true,
+  "tags": [
+    "t11",
+    "ambiguous-link",
+    "uid-matching"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "oldPodUid": "fixture-pod-001",
+  "newPodUid": "fixture-pod-002",
+  "restartEventPodUid": "fixture-pod-003",
+  "expectedLinkStrength": "AMBIGUOUS",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/events-absent.marker"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

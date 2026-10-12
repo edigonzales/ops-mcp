@@ -1,0 +1,147 @@
+/*
+ * AGI Ops-Agent V1
+ *
+ * Eine Java-Anwendung mit CLI und stdio-MCP, gemeinsamer Fachlogik und getrennten
+ * Read-only-Adaptern. Kein eigener LLM-Client, kein Webserver, keine Datenbank.
+ *
+ * Alle Abhaengigkeiten sind fest gepinnt (siehe gradle/libs.versions.toml und
+ * docs/entwicklerhandbuch.md). Keine dynamischen Versionen, kein "latest".
+ */
+
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'ch.so.agi.ops'
+version = '1.0.0'
+
+// Feste Versionen. Siehe gradle/libs.versions.toml fuer die Begruendung.
+def mcpSdkVersion = '2.0.1'
+def jacksonVersion = '3.1.4'
+def jsonSchemaValidatorVersion = '3.0.6'
+def junitVersion = '5.14.1'
+def junitPlatformVersion = '1.14.1'
+def slf4jVersion = '2.0.17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "io.modelcontextprotocol.sdk:mcp:${mcpSdkVersion}"
+    implementation "tools.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "tools.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
+    implementation "com.networknt:json-schema-validator:${jsonSchemaValidatorVersion}"
+
+    // Das MCP-SDK protokolliert ueber SLF4J. Ohne Binding erscheint beim Start
+    // eine Warnung auf stderr; das ist fuer den stdio-Betrieb unerwuenscht.
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    runtimeOnly "org.slf4j:slf4j-simple:${slf4jVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:${junitPlatformVersion}"
+}
+
+// Keine dynamischen Versionen. Versionskonflikte werden nicht still aufgeloest: die
+// betroffenen Module werden bewusst auf eine gemeinsame Version gezogen und in
+// gradle/libs.versions.toml dokumentiert.
+configurations.configureEach {
+    resolutionStrategy {
+        force "org.slf4j:slf4j-api:${slf4jVersion}"
+        force "org.slf4j:slf4j-simple:${slf4jVersion}"
+        failOnVersionConflict()
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:all' << '-Xlint:-serial' << '-Werror'
+    options.release = 25
+}
+
+application {
+    mainClass = 'ch.so.agi.ops.cli.OpsAgentMain'
+    applicationName = 'ops-agent'
+    applicationDefaultJvmArgs = [
+            // Logs gehen nach stderr; stdout bleibt ausschliesslich JSON-RPC.
+            '-Dorg.slf4j.simpleLogger.logFile=System.err',
+            '-Dorg.slf4j.simpleLogger.defaultLogLevel=warn',
+            '-Dfile.encoding=UTF-8',
+            '-Djava.net.useSystemProxies=false'
+    ]
+}
+
+tasks.named('run', JavaExec) {
+    standardInput = System.in
+    // Der MCP-stdio-Betrieb braucht einen ungepufferten, sauberen stdout.
+    jvmArgs = application.applicationDefaultJvmArgs
+}
+
+def launcherPath = layout.buildDirectory.file('install/ops-agent/bin/ops-agent')
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    // Der stdio-MCP-Integrationstest startet den echten installDist-Launcher.
+    dependsOn tasks.named('installDist')
+    systemProperty 'opsagent.launcher', launcherPath.get().asFile.absolutePath
+    systemProperty 'opsagent.distDir', layout.buildDirectory.dir('install/ops-agent').get().asFile.absolutePath
+    systemProperty 'opsagent.projectDir', projectDir.absolutePath
+    systemProperty 'opsagent.version', version
+    // Damit kein Test versehentlich eine Firmen- oder Liveadresse aufloest.
+    environment 'NO_PROXY', '*'
+    environment 'no_proxy', '*'
+    maxHeapSize = '1g'
+    testLogging {
+        events 'failed'
+        exceptionFormat 'full'
+        // Die MCP-Protokollversion und weitere Abnahmenachweise werden ausgegeben, damit der
+        // Abnahmestand belegbar ist.
+        showStandardStreams = false
+    }
+    // Keine Tests, die ein echtes LLM, das Firmennetz oder ein echtes oc benoetigen.
+    exclude '**/live/**'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('test')
+}
+
+// Reproduzierbarer Nachweis der tatsaechlich verwendeten Versionen.
+tasks.register('dependencyReport') {
+    description = 'Schreibt die aufgeloesten Laufzeitversionen nach build/dependency-report.txt'
+    group = 'documentation'
+    def reportFile = layout.buildDirectory.file('dependency-report.txt')
+    def runtimeFiles = configurations.runtimeClasspath
+    def testFiles = configurations.testRuntimeClasspath
+    inputs.files(runtimeFiles, testFiles)
+    outputs.file(reportFile)
+    doLast {
+        def lines = []
+        lines << "AGI Ops-Agent ${project.version} - aufgeloeste Abhaengigkeiten"
+        lines << "Java: ${System.getProperty('java.version')} / Gradle: ${gradle.gradleVersion}"
+        lines << ''
+        lines << '[runtimeClasspath]'
+        runtimeFiles.incoming.resolutionResult.allComponents
+                .findAll { it.moduleVersion != null }
+                .collect { "${it.moduleVersion.group}:${it.moduleVersion.name}:${it.moduleVersion.version}" }
+                .sort()
+                .each { lines << "  ${it}" }
+        lines << ''
+        lines << '[testRuntimeClasspath]'
+        testFiles.incoming.resolutionResult.allComponents
+                .findAll { it.moduleVersion != null }
+                .collect { "${it.moduleVersion.group}:${it.moduleVersion.name}:${it.moduleVersion.version}" }
+                .sort()
+                .each { lines << "  ${it}" }
+        def out = reportFile.get().asFile
+        out.parentFile.mkdirs()
+        out.text = lines.join(System.lineSeparator()) + System.lineSeparator()
+        logger.lifecycle("Abhaengigkeitsbericht: ${out}")
+    }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "t09-sidecar-oom",
+  "title": "OOM und Sidecar sauber zuordnen",
+  "expectation": "Der Hauptcontainer bleibt gesund, der Sidecar wird mit OOMKilled beendet. Der betroffene Container muss korrekt genannt werden; eine Probe-Ursache darf ohne Belege nicht behauptet werden.",
+  "synthetic": true,
+  "tags": [
+    "t09",
+    "oom",
+    "sidecar"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "affectedContainer": "log-forwarder",
+  "unaffectedContainer": "modelfinder",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-absent.marker",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--log-forwarder.log"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

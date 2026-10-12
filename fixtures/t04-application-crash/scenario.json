@@ -1,0 +1,30 @@
+{
+  "id": "t04-application-crash",
+  "title": "Anwendungsabsturz, Probes nur Folge",
+  "expectation": "Fataler Startfehler wegen einer fehlenden Konfiguration im Log; der Container beendet sich unabhaengig von einer Liveness-Meldung (Exitcode 1, kein Liveness-Killing-Event). Keine Secretwerte im Log und im Bericht.",
+  "synthetic": true,
+  "tags": [
+    "t04",
+    "application-crash",
+    "no-secrets",
+    "exit-code"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

@@ -1,0 +1,12 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+Obtained Jenkinsfile from git https://github.com/sogis/schema-jobs.git
+Checking out Revision dddd4444dddd4444dddd4444dddd4444dddd4444 (refs/remotes/origin/main)
+[Pipeline] { (Deploy deployment-config)
+Die Konfigurationsablage openshift-templates wurde in diesem Lauf nicht ausgecheckt.
+[Pipeline] { (Wait for rollout)
+oc rollout status deployment/fixture-modelfinder --timeout=600s
+error: timed out waiting for the condition
+ERROR: Rollout nicht abgeschlossen.
+Finished: FAILURE

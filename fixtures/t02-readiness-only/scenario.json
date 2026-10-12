@@ -1,0 +1,30 @@
+{
+  "id": "t02-readiness-only",
+  "title": "Nur Readiness negativ, kein Neustart",
+  "expectation": "Die Readiness-Pruefung meldet einen Fehler, der Pod bleibt Running/NotReady, der Restartcount ist 0 und es gibt KEINE Liveness- oder Killing-Events. Jenkins wartet erfolglos auf die Bereitschaft. Ein Readiness-Fehler startet den Container nicht neu.",
+  "synthetic": true,
+  "tags": [
+    "t02",
+    "readiness",
+    "no-restart"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log",
+    "k8s/events-absent.marker"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

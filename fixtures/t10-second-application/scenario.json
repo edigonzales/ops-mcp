@@ -1,0 +1,47 @@
+{
+  "id": "t10-second-application",
+  "title": "Zweite Anwendung, anderer Namespace und Job",
+  "expectation": "T01 strukturell auf fixture-service-b uebertragen: anderer Namespace (fixture-service-b-integration), anderer Jenkins-Jobpfad, gleicher Ablauf mit Liveness-Neustart. Kein anwendungsspezifischer Sonderfall im Code.",
+  "synthetic": true,
+  "tags": [
+    "t10",
+    "second-application",
+    "no-hardcoding"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "fixture-service-b",
+  "environment": "integration",
+  "namespace": "fixture-service-b-integration",
+  "workload": "fixture-service-b",
+  "jenkinsBuild": 42,
+  "repoStrategy": "git",
+  "expectedRawFiles": [
+    "jenkins/build-42-console.txt",
+    "jenkins/build-42-metadata.json",
+    "jenkins/job.json",
+    "k8s/deployment.json",
+    "k8s/events-absent.marker",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-service-b-5f6d8c9b7d-q7w3e--service-b.log",
+    "k8s/pods.json",
+    "k8s/replicasets.json",
+    "repo/commits/commit-a/env/service-b-integration.env",
+    "repo/commits/commit-a/templates/service-b.yaml",
+    "repo/repo-setup.json"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "_testConfig": {
+    "application": "fixture-service-b",
+    "environment": "integration",
+    "templateFiles": [
+      "t10-second-application/repo/templates/service-b.yaml"
+    ],
+    "parameterFiles": [
+      "t10-second-application/repo/env/service-b-integration.env"
+    ]
+  },
+  "configuredFiles": [
+    "t10-second-application/repo/env/service-b-integration.env",
+    "t10-second-application/repo/templates/service-b.yaml"
+  ]
+}

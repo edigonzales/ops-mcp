@@ -1,0 +1,29 @@
+{
+  "id": "t07-probe-timeout",
+  "title": "Probe-Antworttimeout ist nicht Startbudget",
+  "expectation": "Die Anwendung ist gestartet; die Probe hat ein kleines timeoutSeconds (1 s); die Events zeigen eine Zeitueberschreitung der Probe. Es gibt keine belastbare Messung der tatsaechlichen Endpointdauer.",
+  "synthetic": true,
+  "tags": [
+    "t07",
+    "probe-timeout",
+    "no-invented-duration"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": []
+}

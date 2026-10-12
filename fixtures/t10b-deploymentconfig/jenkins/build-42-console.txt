@@ -1,0 +1,11 @@
+# Synthetische Fixture des AGI Ops-Agenten. Keine echten Betriebsdaten, keine echten
+# Hosts, keine Tokens, keine Benutzerkennungen. Erzeugt fuer die Abnahmeszenarien T01-T12.
+Started by user fixture-operator
+[Pipeline] { (Deploy legacy-application)
+oc apply -f deployed/legacy-application.yaml
+deploymentconfig.apps.openshift.io/fixture-legacy-application configured
+[Pipeline] { (Wait for rollout)
+oc rollout status dc/fixture-legacy-application --timeout=600s
+error: timed out waiting for the condition
+ERROR: Rollout der DeploymentConfig nicht abgeschlossen.
+Finished: FAILURE

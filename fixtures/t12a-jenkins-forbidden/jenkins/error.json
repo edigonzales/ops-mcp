@@ -1,0 +1,6 @@
+{
+  "httpStatus": 403,
+  "url": "/job/fixture-folder/job/modelfinder/42/api/json",
+  "body": "<html><head><title>Error 403 No valid crumb was included in the request</title></head><body><h2>HTTP ERROR 403 Forbidden</h2><p>Die synthetische Fixtureantwort simuliert eine fehlende Leseberechtigung.</p></body></html>",
+  "note": "Synthetische Fehlerantwort. Kein Login, kein Token, kein Redirect."
+}

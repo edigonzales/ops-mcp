@@ -1,0 +1,33 @@
+{
+  "id": "t12b-previous-log-missing",
+  "title": "Vorheriger Container nicht vorhanden",
+  "expectation": "Der Restartcount ist groesser als 0, aber die Logdatei des vorherigen Containers fehlt. Das ergibt NO_PREVIOUS_LOG und ausdruecklich KEIN leeres, erfolgreich gelesenes Log.",
+  "synthetic": true,
+  "tags": [
+    "t12",
+    "previous-log",
+    "no-previous-log"
+  ],
+  "fixedNow": "2026-10-01T10:10:00Z",
+  "application": "modelfinder",
+  "environment": "integration",
+  "namespace": "fixture-integration",
+  "workload": "fixture-modelfinder",
+  "jenkinsBuild": 42,
+  "repoStrategy": "none",
+  "expectedErrorCode": "NO_PREVIOUS_LOG",
+  "expectedRawFiles": [
+    "jenkins/job.json",
+    "jenkins/build-42-metadata.json",
+    "jenkins/build-42-console.txt",
+    "k8s/deployment.json",
+    "k8s/replicasets.json",
+    "k8s/pods.json",
+    "k8s/events-core.json",
+    "k8s/logs/fixture-modelfinder-7d9c4b6f5c-p4x2q--modelfinder.log"
+  ],
+  "rawFilesIntentionallyInvalid": [],
+  "expectedGaps": [
+    "keine Logdatei des vorherigen Containers"
+  ]
+}

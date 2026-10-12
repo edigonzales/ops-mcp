@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "snapshotId": "20261001T100000Z-abcdefgh",
+  "useCase": "deployment-failure",
+  "dataMode": "fixture",
+  "applicationId": "modelfinder",
+  "environment": "integration",
+  "buildRef": {
+    "instanceId": "apps-deploy",
+    "jobPath": ["fixture-folder", "fixture-modelfinder"],
+    "buildNumber": 42,
+    "metadataAvailable": true
+  },
+  "target": {
+    "clusterId": "ocp",
+    "namespace": "fixture-integration",
+    "workloadKind": "Deployment",
+    "workloadName": "fixture-modelfinder"
+  },
+  "collectionStartedAt": "2026-10-01T10:00:00Z",
+  "collectionFinishedAt": "2026-10-01T10:00:12Z",
+  "investigationWindow": {
+    "from": "2026-10-01T09:58:00Z",
+    "to": "2026-10-01T10:04:00Z",
+    "timeBasis": "build-start-and-end",
+    "derivation": "Buildstart 10:00:00Z minus zwei Minuten bis Buildende 10:02:00Z plus zwei Minuten; Buildstart und Buildende stammen aus den erfassten Jenkins-Buildmetadaten."
+  },
+  "collectionStatus": "complete",
+  "sourceResults": [
+    {
+      "sourceId": "apps-deploy",
+      "status": "COLLECTED",
+      "collectedAt": "2026-10-01T10:00:05Z",
+      "evidenceCount": 2,
+      "evidenceIds": ["EV-0001", "EV-0002"],
+      "notes": ["Buildmetadaten und Console-Log wurden gelesen; der Console-Log ist gekuerzt gespeichert."]
+    },
+    {
+      "sourceId": "ocp",
+      "status": "COLLECTED",
+      "collectedAt": "2026-10-01T10:00:04Z",
+      "evidenceCount": 4,
+      "evidenceIds": ["EV-0003", "EV-0004", "EV-0005", "EV-0006"]
+    },
+    {
+      "sourceId": "deployment-config",
+      "status": "COLLECTED",
+      "collectedAt": "2026-10-01T10:00:07Z",
+      "evidenceCount": 1,
+      "evidenceIds": ["EV-0007"]
+    },
+    {
+      "sourceId": "previous-container-log",
+      "status": "COLLECTED",
+      "collectedAt": "2026-10-01T10:00:06Z",
+      "evidenceCount": 1,
+      "evidenceIds": ["EV-0008"],
+      "notes": ["Der vorherige Containerlauf wurde ueber lastState des Hauptcontainers gelesen."]
+    },
+    {
+      "sourceId": "events-outside-window",
+      "status": "NOT_APPLICABLE",
+      "collectedAt": "2026-10-01T10:00:04Z",
+      "evidenceCount": 0,
+      "evidenceIds": [],
+      "notes": ["Keine Events ausserhalb des Untersuchungsfensters angefordert; regulaeres fachliches Ergebnis und keine technische Luecke."]
+    }
+  ],
+  "links": [
+    {
+      "from": "build:apps-deploy/fixture-folder/fixture-modelfinder#42",
+      "to": "workload:ocp/fixture-integration/Deployment/fixture-modelfinder",
+      "relation": "build-to-workload",
+      "strength": "probable",
+      "reason": "Der Jenkins-Lauf hat den Rollout angestossen; Zeitfenster und Revisionsannotation des ReplicaSets passen zum Build, ein Image-Digest-Abgleich fehlt.",
+      "evidenceRefs": ["EV-0001", "EV-0003"],
+      "limitations": ["Ohne expliziten Image-Digest bleibt die Zuordnung eine begruendete Wahrscheinlichkeit."]
+    },
+    {
+      "from": "revision:deployment-config/0123456789abcdef0123456789abcdef01234567",
+      "to": "workload:ocp/fixture-integration/Deployment/fixture-modelfinder",
+      "relation": "revision-to-workload",
+      "strength": "exact",
+      "reason": "Die Liveness-Pruefung aus dem Template der Revision stimmt mit der im erfassten Deployment ueberein.",
+      "evidenceRefs": ["EV-0003", "EV-0007"]
+    }
+  ],
+  "evidenceIndex": [
+    {
+      "id": "EV-0001",
+      "type": "jenkins-build-metadata",
+      "sourceId": "apps-deploy",
+      "observedAt": "2026-10-01T10:02:00Z",
+      "collectedAt": "2026-10-01T10:00:05Z",
+      "locator": {
+        "path": "evidence/EV-0001.txt",
+        "lineCount": 24,
+        "sourcePath": "/job/fixture-folder/job/fixture-modelfinder/42/api/json"
+      },
+      "sha256": "0ee355537686d3a74827f5a0515ec6e7e7138352020ae9baec523ddfda7cc90a",
+      "byteSize": 1720,
+      "dataMode": "fixture",
+      "notes": ["Ergebnis des Builds: FAILURE nach Warten auf den Rollout."]
+    },
+    {
+      "id": "EV-0002",
+      "type": "jenkins-console-log",
+      "sourceId": "apps-deploy",
+      "observedAt": "2026-10-01T10:02:00Z",
+      "collectedAt": "2026-10-01T10:00:05Z",
+      "locator": {
+        "path": "evidence/EV-0002.txt",
+        "lineCount": 180,
+        "sourcePath": "consoleText",
+        "sourceLineFrom": 1,
+        "sourceLineTo": 180,
+        "sourceByteFrom": 0,
+        "streamingOrAggregated": true,
+        "truncationNote": "Gekuerzt gespeichert; die Zeilen 41 bis 43 wurden ausgelassen und die Luecke ist im Beleg markiert."
+      },
+      "provenance": "consoleText",
+      "sha256": "b9d00222f4f6ddc03b4c682cb63bf30d453f93e64813a8dedfc830458665a6a7",
+      "byteSize": 9216,
+      "dataMode": "fixture",
+      "notes": ["Der Rolloutfehler steht nahe dem Ende des gekuerzten Ausschnitts."]
+    },
+    {
+      "id": "EV-0003",
+      "type": "kubernetes-workload",
+      "sourceId": "ocp",
+      "object": {
+        "kind": "Deployment",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder",
+        "uid": "fixture-deployment-001"
+      },
+      "observedAt": "2026-10-01T10:00:04Z",
+      "collectedAt": "2026-10-01T10:00:04Z",
+      "locator": {
+        "path": "evidence/EV-0003.txt",
+        "lineCount": 64
+      },
+      "sha256": "52146eb5e0b7b3147d38759a0f201927802e97fba2cdc5e1ad6c5cdebed2bdf5",
+      "byteSize": 4096,
+      "dataMode": "fixture",
+      "notes": ["Enthaelt die Probe-Konfiguration des Hauptcontainers (initialDelaySeconds 10, failureThreshold 3)."]
+    },
+    {
+      "id": "EV-0004",
+      "type": "kubernetes-event",
+      "sourceId": "ocp",
+      "object": {
+        "kind": "Pod",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder-a1",
+        "uid": "fixture-pod-001"
+      },
+      "observedAt": "2026-10-01T10:02:00Z",
+      "collectedAt": "2026-10-01T10:00:04Z",
+      "locator": {
+        "path": "evidence/EV-0004.txt",
+        "lineCount": 12
+      },
+      "sha256": "7869471fcd545e3e9b7ab934df3e571165b4313a3c6ad00820c26a725692aa0f",
+      "byteSize": 1024,
+      "dataMode": "fixture",
+      "notes": ["Aggregiertes Event: count 3, lastTimestamp 10:02:00Z. Die Zaehlung wird nicht vollstaendig dem Untersuchungsfenster zugeschrieben."]
+    },
+    {
+      "id": "EV-0005",
+      "type": "kubernetes-pod",
+      "sourceId": "ocp",
+      "object": {
+        "kind": "Pod",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder-a1",
+        "uid": "fixture-pod-001"
+      },
+      "observedAt": "2026-10-01T10:00:04Z",
+      "collectedAt": "2026-10-01T10:00:04Z",
+      "locator": {
+        "path": "evidence/EV-0005.txt",
+        "lineCount": 48
+      },
+      "sha256": "7b4594281489608bf25424f53dc28ac7340ea426f3b66e0df936c540eb14dd61",
+      "byteSize": 3584,
+      "dataMode": "fixture",
+      "derivedFrom": ["EV-0003"],
+      "notes": ["Restartcount und lastState des Hauptcontainers sind enthalten."]
+    },
+    {
+      "id": "EV-0006",
+      "type": "kubernetes-container-log",
+      "sourceId": "ocp",
+      "object": {
+        "kind": "Pod",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder-a1",
+        "uid": "fixture-pod-001"
+      },
+      "observedAt": "2026-10-01T10:01:30Z",
+      "collectedAt": "2026-10-01T10:00:06Z",
+      "locator": {
+        "path": "evidence/EV-0006.txt",
+        "lineCount": 36
+      },
+      "sha256": "8a714801fe5dca67bd882358c1ec0d668bfdedc8c524bf186381efe4179beb14",
+      "byteSize": 2048,
+      "dataMode": "fixture",
+      "notes": ["Aktueller Containerlauf: Initialisierung ohne Startup-Probe."]
+    },
+    {
+      "id": "EV-0007",
+      "type": "git-configuration",
+      "sourceId": "deployment-config",
+      "observedAt": "2026-10-01T09:59:00Z",
+      "collectedAt": "2026-10-01T10:00:07Z",
+      "locator": {
+        "path": "evidence/EV-0007.txt",
+        "lineCount": 30,
+        "sourcePath": "templates/modelfinder.yaml"
+      },
+      "sha256": "d3b80b99f16193ad7bead97337fbdf35fba84ad96834e166b1c81c4f62be0f71",
+      "byteSize": 1536,
+      "dataMode": "fixture",
+      "notes": ["Revision 0123456789abcdef0123456789abcdef01234567 aus operator-supplied; Zuordnung bleibt operator_supplied_unverified."]
+    },
+    {
+      "id": "EV-0008",
+      "type": "kubernetes-container-log",
+      "sourceId": "previous-container-log",
+      "object": {
+        "kind": "Pod",
+        "namespace": "fixture-integration",
+        "name": "fixture-modelfinder-a1",
+        "uid": "fixture-pod-001"
+      },
+      "observedAt": "2026-10-01T10:00:40Z",
+      "collectedAt": "2026-10-01T10:00:06Z",
+      "locator": {
+        "path": "evidence/EV-0008.txt",
+        "lineCount": 24
+      },
+      "sha256": "8130cbe4dd0495e2a2a58cd1fdb6bcc2e61952df4c904f4e9237a8ff4fb3a41c",
+      "byteSize": 1792,
+      "dataMode": "fixture",
+      "notes": ["Vorheriger Containerlauf; die Startphase endet vor dem dokumentierten Killing."]
+    }
+  ],
+  "redaction": {
+    "ruleVersion": "redaction-v1",
+    "counts": {
+      "bearer-token": 2,
+      "basic-auth-header": 1
+    },
+    "totalCount": 3,
+    "limitations": [
+      "Regex-Redaktion garantiert keine vollstaendige Anonymisierung.",
+      "Nicht erkannte Secretformate koennen im Text verbleiben.",
+      "Live-Logs duerfen nur an einen fuer diese Betriebsdaten freigegebenen Modellanbieter gesendet werden."
+    ]
+  },
+  "toolVersions": {
+    "java": "25",
+    "application": "1.0.0",
+    "oc": "nicht verwendet (Fixtureadapter)",
+    "git": "nicht verwendet (Fixtureadapter)"
+  },
+  "warnings": [
+    "Das Event EV-0004 ist aggregiert (count 3); seine Zaehlung wird nicht vollstaendig dem Untersuchungsfenster zugeschrieben."
+  ]
+}

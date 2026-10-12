@@ -1,0 +1,12 @@
+{
+  "repositoryId": "sogis/openshift-templates",
+  "branch": "main",
+  "commits": [
+    {
+      "id": "commit-a",
+      "sha": "69e1a6ec93b1edb318a226023fb980fa0caaca19",
+      "message": "synthetische Fixture: Service B Liveness anpassen",
+      "date": "2026-09-28T09:10:00Z"
+    }
+  ]
+}

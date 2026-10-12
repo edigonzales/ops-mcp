@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "snapshotId": "20261001T100000Z-abcdefgh",
+  "language": "de-CH",
+  "assessment": "probable_cause",
+  "title": "Liveness-Prüfung unterbricht die Startphase",
+  "summary": "Der Container wird während der Initialisierung nach Liveness-Fehlern neu gestartet. Ein zu kleines Startbudget ist wahrscheinlich.",
+  "facts": [
+    {
+      "id": "F-1",
+      "statement": "Das erfasste Event nennt einen Neustart nach fehlgeschlagener Liveness-Prüfung.",
+      "evidence": [
+        {"evidenceId": "EV-0004", "startLine": 3, "endLine": 6}
+      ]
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H-1",
+      "category": "startup-budget",
+      "statement": "Die konfigurierte Startabsicherung ist für diese Initialisierung zu knapp.",
+      "strength": "supported",
+      "supports": ["F-1"],
+      "counterEvidence": [],
+      "limitations": ["Die nötige Startdauer ist für den fehlgeschlagenen Lauf nicht vollständig gemessen."]
+    }
+  ],
+  "timeline": [
+    {
+      "at": null,
+      "timeBasis": "unknown",
+      "description": "Liveness-Fehler und anschliessender Neustart sind in der erfassten Ereignisfolge dokumentiert.",
+      "evidence": [
+        {"evidenceId": "EV-0004", "startLine": 1, "endLine": 8}
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "description": "Eine Startup-Probe mit nachgewiesenem Health-Endpunkt und angemessenem Startbudget prüfen.",
+      "rationale": "Die Startphase soll abgesichert werden, ohne die laufende Liveness-Prüfung unnötig zu verzögern.",
+      "basedOnHypotheses": ["H-1"],
+      "risk": "Ein zu grosses Budget könnte echte Startfehler später sichtbar machen.",
+      "verification": "Nach menschlich freigegebener Änderung Startdauer, Ready-Zustand, Neustarts und Jenkins-Rolloutergebnis prüfen.",
+      "executed": false
+    }
+  ],
+  "openQuestions": ["Welches Startbudget deckt die beobachteten erfolgreichen Starts zuverlässig ab?"],
+  "limitations": ["Synthetischer Beispieldatensatz; keine Live-Abnahme."],
+  "actionsTaken": []
+}

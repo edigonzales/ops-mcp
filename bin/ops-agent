@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# AGI Ops-Agent – Launcher
+#
+# Startet das GEBAUTE Programm. Es wird bewusst kein Gradle-Build pro Aufruf ausgeloest:
+# Ein MCP-Aufruf darf nicht von einem Buildschritt abhaengen.
+#
+# Voraussetzung: einmalig `./gradlew installDist` ausfuehren.
+#
+# Verwendung:
+#   ./bin/ops-agent --config config/fixture.example.yaml doctor
+#   ./bin/ops-agent --config config/fixture.example.yaml serve
+#
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+START_SCRIPT="${OPS_AGENT_DIST:-${PROJECT_DIR}/build/install/ops-agent}/bin/ops-agent"
+
+if [ ! -x "${START_SCRIPT}" ]; then
+    echo "Fehler: Das gebaute Programm wurde nicht gefunden: ${START_SCRIPT}" >&2
+    echo "Bitte einmalig bauen: (cd \"${PROJECT_DIR}\" && ./gradlew installDist)" >&2
+    exit 2
+fi
+
+# OPS_AGENT_HOME zeigt auf das Repositorywurzelverzeichnis. Die Beispielkonfiguration
+# verwendet diesen Platzhalter fuer relative Fixture- und Ausgabepfade. Ein bereits
+# gesetzter Wert wird nicht ueberschrieben.
+export OPS_AGENT_HOME="${OPS_AGENT_HOME:-${PROJECT_DIR}}"
+
+# stdout bleibt ausschliesslich fuer das Ergebnis bzw. JSON-RPC reserviert.
+# Der generierte Startskript setzt bereits die Logkonfiguration auf stderr.
+exec "${START_SCRIPT}" "$@"
