@@ -4,7 +4,7 @@ Diese Datei führt den Abnahmestand nach [`docs/spec-v1/ABNAHME.md`](spec-v1/ABN
 Ebenen werden **getrennt** geführt. Ein fehlender Zugang ist kein bestandener Nachweis.
 
 ```text
-Implementierungsversion / Git-Commit: 1.0.0 / <Arbeitsstand ohne Commit, siehe Abschnitt 1>
+Implementierungsversion / Git-Commit: 1.0.0 / 0ab2ad5 (Branch main, gepusht nach origin)
 Java / Gradle / MCP-SDK:              Java 25.0.2 (Temurin) / Gradle 9.8.1 / io.modelcontextprotocol.sdk:mcp 2.0.1
 Betriebssysteme:                      getestet: macOS 27.0.1 (aarch64); vorgesehen: Linux/Ubuntu unter WSL2
 Ausgeführte Testbefehle:              siehe Abschnitt 2
@@ -37,10 +37,10 @@ Abgenommen wird der in diesem Repository liegende Stand der technischen V1:
 GRETL-/Schema-Jobdiagnose, Logit.io, OpenProject, PR-Vorschläge, Webfrontend, Betrieb als
 Hintergrunddienst.
 
-Der Git-Commit konnte bei Erstellung dieser Datei nicht festgehalten werden, weil die
-Implementierung noch nicht committet ist. Der Nachweis ist über die Testlaufzeit und die
-Ergebnisdateien in `build/test-results/test/` belegbar. Nach dem Commit ist dieser Wert
-nachzutragen.
+Der abgenommene Stand ist Commit **`0ab2ad5`** auf `main` (gepusht nach `origin`). Alle
+Testbefehle in Abschnitt 2 wurden auf diesem Stand ausgeführt; die Ergebnisdateien liegen in
+`build/test-results/test/`. Nach weiteren Änderungen ist der Commit-Hash hier zu erneuern –
+die Abnahme gilt jeweils nur für den genannten Stand.
 
 ---
 
@@ -363,7 +363,7 @@ damaligen Ursache. Für den historischen Modelfinder-Vorfall ist ein begründete
 | 5 | Manuelle Kontrolle der Live-Belege gegen Jenkins-Console und OpenShift-Events/Logs | C |
 | 6 | Bestätigung der tatsächlichen RBAC-Rechte der verwendeten Identität (nicht durch `doctor` ersetzbar) | C |
 | 7 | Freigabe des Modellanbieters für Betriebsdaten | organisatorisch |
-| 8 | Nachtragen des Git-Commits dieser Abnahme nach dem ersten Commit | – |
+| 8 | Erneuerung des Abnahme-Commit-Hashs nach jeder weiteren Änderung | – |
 
 ---
 
